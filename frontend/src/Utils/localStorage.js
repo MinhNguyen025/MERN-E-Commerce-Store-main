@@ -1,4 +1,4 @@
-// Add a product to a localStorage
+ // Add a product to a localStorage
 export const addFavoriteToLocalStorage = (product) => {
   const favorites = getFavoritesFromLocalStorage();
   if (!favorites.some((p) => p._id === product._id)) {

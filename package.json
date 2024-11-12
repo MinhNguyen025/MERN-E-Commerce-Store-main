@@ -1,7 +1,7 @@
 {
   "name": "MERN e-commerce",
   "version": "1.0.0",
-  "description": "MERN Stack E-Commerce Project",
+  "description": "MERN Stack E-Commerce Intern Project",
   "main": "index.js",
   "type": "module",
   "scripts": {
@@ -10,7 +10,7 @@
     "dev": "concurrently \"npm run frontend\" \"npm run backend"
   },
   "keywords": [],
-  "author": "HuXn WebDev",
+  "author": "MinhNguyen025",
   "license": "ISC",
   "dependencies": {
     "bcryptjs": "^2.4.3",

@@ -17,39 +17,6 @@ const Shop = () => {
     (state) => state.shop
   );
 
-  const categoriesQuery = useFetchCategoriesQuery();
-  const [priceFilter, setPriceFilter] = useState("");
-
-  const filteredProductsQuery = useGetFilteredProductsQuery({
-    checked,
-    radio,
-  });
-
-  useEffect(() => {
-    if (!categoriesQuery.isLoading) {
-      dispatch(setCategories(categoriesQuery.data));
-    }
-  }, [categoriesQuery.data, dispatch]);
-
-  useEffect(() => {
-    if (!checked.length || !radio.length) {
-      if (!filteredProductsQuery.isLoading) {
-        // Filter products based on both checked categories and price filter
-        const filteredProducts = filteredProductsQuery.data.filter(
-          (product) => {
-            // Check if the product price includes the entered price filter value
-            return (
-              product.price.toString().includes(priceFilter) ||
-              product.price === parseInt(priceFilter, 10)
-            );
-          }
-        );
-
-        dispatch(setProducts(filteredProducts));
-      }
-    }
-  }, [checked, radio, filteredProductsQuery.data, dispatch, priceFilter]);
-
   const handleBrandClick = (brand) => {
     const productsByBrand = filteredProductsQuery.data?.filter(
       (product) => product.brand === brand

@@ -143,7 +143,7 @@ const AdminProductUpdate = () => {
               <div className="text-center">
                 <img
                   src={image}
-                  alt="product"
+                  alt="Uploaded Product"
                   className="block mx-auto w-full h-[40%]"
                 />
               </div>

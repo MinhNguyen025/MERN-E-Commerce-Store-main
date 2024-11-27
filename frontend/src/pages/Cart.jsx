@@ -2,6 +2,8 @@ import { Link, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { FaTrash } from "react-icons/fa";
 import { addToCart, removeFromCart } from "../redux/features/cart/cartSlice";
+import emptyCartImage from "../images/empty-cart.png";
+
 
 const Cart = () => {
   const navigate = useNavigate();
@@ -26,9 +28,23 @@ const Cart = () => {
     <>
       <div className="container flex justify-around items-start flex wrap mx-auto mt-8">
         {cartItems.length === 0 ? (
-          <div>
-            Your cart is empty <Link to="/shop">Go To Shop</Link>
-          </div>
+        <div className="flex flex-col items-center justify-center h-screen text-center">
+        <img
+          src={emptyCartImage} // image path
+          alt="Empty Cart"
+          className="w-[300px] mb-6" // fix images
+        />
+        <h2 className="text-2xl font-semibold mb-4">Your cart is empty</h2>
+        <p className="mb-6 text-gray-500">
+          Build a prototype to bring your designs to life. Create a board for custom moodboards and galleries.
+        </p>
+        <Link
+          to="/shop"
+          className="bg-red-500 text-white px-6 py-3 rounded-full text-lg hover:bg-red-600 transition"
+        >
+          Go to Shop
+        </Link>
+      </div>
         ) : (
           <>
             <div className="flex flex-col w-[80%]">

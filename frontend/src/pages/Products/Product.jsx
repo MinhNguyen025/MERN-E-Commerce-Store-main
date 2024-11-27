@@ -3,25 +3,30 @@ import HeartIcon from "./HeartIcon";
 
 const Product = ({ product }) => {
   return (
-    <div className="w-[30rem] ml-[2rem] p-3 relative">
+    <div className="w-full max-w-[18rem] p-3 bg-[#1e1e1e] rounded-lg shadow-lg flex flex-col justify-between">
+      {/* Hình ảnh sản phẩm */}
       <div className="relative">
         <img
           src={product.image}
           alt={product.name}
-          className="w-[30rem] rounded"
+          className="w-full h-[12rem] object-cover rounded-t-lg"
         />
-        <HeartIcon product={product} />
+        <HeartIcon product={product} className="absolute top-2 right-2" />
       </div>
 
+      {/* Nội dung sản phẩm */}
       <div className="p-4">
+        {/* Tên sản phẩm */}
         <Link to={`/product/${product._id}`}>
-          <h2 className="flex justify-between items-center">
-            <div className="text-lg">{product.name}</div>
-            <span className="bg-red-100 text-red-800 text-sm font-medium mr-2 px-2.5 py-0.5 rounded-full dark:bg-red-900 dark:text-red-300">
-              $ {product.price}
-            </span>
-          </h2>
+          <h2 className="text-lg font-bold text-white truncate">{product.name}</h2>
         </Link>
+
+        {/* Giá sản phẩm */}
+        <div className="mt-2">
+          <span className="bg-red-100 text-red-800 text-sm font-medium px-2.5 py-0.5 rounded-full">
+            $ {product.price}
+          </span>
+        </div>
       </div>
     </div>
   );

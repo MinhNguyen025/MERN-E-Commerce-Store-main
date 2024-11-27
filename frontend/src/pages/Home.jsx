@@ -20,27 +20,27 @@ const Home = () => {
         </Message>
       ) : (
         <>
-          <div className="flex justify-between items-center">
-            <h1 className="ml-[20rem] mt-[10rem] text-[3rem]">
-              Special Products
-            </h1>
-
+          {/* Tiêu đề và nút "Shop" */}
+          <div className="flex justify-between items-center px-[4rem] mt-[4rem]">
+            <h1 className="text-4xl font-bold text-white mr-auto">Special Products</h1>
             <Link
               to="/shop"
-              className="bg-red-600 font-bold rounded-full py-2 px-10 mr-[18rem] mt-[10rem]"
+              className="bg-red-600 text-white font-bold rounded-full py-2 px-10 hover:bg-red-700"
             >
               Shop
             </Link>
           </div>
 
-          <div>
-            <div className="flex justify-center flex-wrap mt-[2rem]">
-              {data.products.map((product) => (
-                <div key={product._id}>
-                  <Product product={product} />
-                </div>
-              ))}
-            </div>
+          {/* Grid container cho danh sách sản phẩm */}
+          <div className="grid grid-cols-4 lg:grid-cols-4 md:grid-cols-3 sm:grid-cols-2 gap-6 justify-center mt-[2rem] px-[2rem]">
+            {data.products.map((product) => (
+              <div
+                key={product._id}
+                className="flex justify-center"
+              >
+                <Product product={product} />
+              </div>
+            ))}
           </div>
         </>
       )}

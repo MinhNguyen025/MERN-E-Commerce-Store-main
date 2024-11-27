@@ -38,7 +38,7 @@ const Register = () => {
       try {
         const res = await register({ username, email, password }).unwrap();
         dispatch(setCredentials({ ...res }));
-        navigate(redirect);
+        navigate("/login"); // Chuyển hướng tới trang login sau khi đăng ký thành công
         toast.success("User successfully registered");
       } catch (err) {
         console.log(err);
@@ -48,11 +48,12 @@ const Register = () => {
   };
 
   return (
-    <section className="pl-[10rem] flex flex-wrap">
-      <div className="mr-[4rem] mt-[5rem]">
+    <section className="pl-[10rem] flex items-center justify-between min-h-screen">
+      {/* Form Register */}
+      <div className="w-full lg:w-1/2 mr-[4rem] mt-[5rem]">
         <h1 className="text-2xl font-semibold mb-4">Register</h1>
 
-        <form onSubmit={submitHandler} className="container w-[40rem]">
+        <form onSubmit={submitHandler} className="container max-w-md">
           <div className="my-[2rem]">
             <label
               htmlFor="name"
@@ -144,11 +145,15 @@ const Register = () => {
           </p>
         </div>
       </div>
-      <img
-        src="https://images.unsplash.com/photo-1576502200916-3808e07386a5?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2065&q=80"
-        alt=""
-        className="h-[65rem] w-[59%] xl:block md:hidden sm:hidden rounded-lg"
-      />
+
+      {/* Hình ảnh bên phải */}
+      <div className="hidden lg:block lg:w-1/2">
+        <img
+          src="https://images.unsplash.com/photo-1576502200916-3808e07386a5?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2065&q=80"
+          alt="Register"
+          className="rounded-lg h-full w-full object-cover"
+        />
+      </div>
     </section>
   );
 };

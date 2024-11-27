@@ -1,21 +1,24 @@
 #navigation-container {
   width: 4%;
+  left: auto;
   transition: width 0.3s ease-in-out;
   overflow: hidden; /* Hide overflowing content during transition */
+  position: fixed;
 }
 
 #navigation-container:hover {
-  width: 15%;
+  width: 10%;
 }
 
 /* Initially hide nav-item-name */
 .nav-item-name {
   display: none;
+  white-space: nowrap;
   transition: opacity 0.2s ease-in-out; /* Add opacity transition */
 }
 
 #navigation-container:hover .nav-item-name {
-  display: block;
+  display: inline-block;
   opacity: 1;
 }
 

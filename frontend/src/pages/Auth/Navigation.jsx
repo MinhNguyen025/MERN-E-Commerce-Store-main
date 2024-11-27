@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useRef } from "react";
 import {
   AiOutlineHome,
   AiOutlineShopping,
@@ -21,9 +22,21 @@ const Navigation = () => {
 
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [showSidebar, setShowSidebar] = useState(false);
+  const dropdownRef = useRef(null); // Thêm ref để theo dõi menu dropdown
 
   const toggleDropdown = () => {
     setDropdownOpen(!dropdownOpen);
+  };
+
+  const closeDropdown = () => {
+    setDropdownOpen(false);
+  };
+
+  const handleMouseLeave = (event) => {
+    // Kiểm tra nếu con trỏ rời khỏi menu
+    if (dropdownRef.current && !dropdownRef.current.contains(event.relatedTarget)) {
+      closeDropdown();
+    }
   };
 
   const dispatch = useDispatch();
@@ -126,6 +139,8 @@ const Navigation = () => {
 
         {dropdownOpen && userInfo && (
           <ul
+            ref={dropdownRef} // Thêm ref vào menu
+            onMouseLeave={handleMouseLeave}
             className={`absolute right-0 mt-2 mr-14 space-y-2 bg-white text-gray-600 ${
               !userInfo.isAdmin ? "-top-20" : "-top-80"
             } `}

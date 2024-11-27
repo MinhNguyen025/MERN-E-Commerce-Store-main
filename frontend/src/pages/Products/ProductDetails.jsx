@@ -20,6 +20,8 @@ import HeartIcon from "./HeartIcon";
 import Ratings from "./Ratings";
 import ProductTabs from "./ProductTabs";
 import { addToCart } from "../../redux/features/cart/cartSlice";
+import Breadcrumb from "../../components/Breadcrumb";
+
 
 const ProductDetails = () => {
   const { id: productId } = useParams();
@@ -65,14 +67,15 @@ const ProductDetails = () => {
 
   return (
     <>
-      <div>
+    {product && <Breadcrumb productName={product.name} />}
+      {/* <div>
         <Link
           to="/"
           className="text-white font-semibold hover:underline ml-[10rem]"
         >
           Go Back
         </Link>
-      </div>
+      </div> */}
 
       {isLoading ? (
         <Loader />

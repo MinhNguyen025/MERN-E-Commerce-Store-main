@@ -22,7 +22,7 @@ const Home = () => {
         <>
           {/* Tiêu đề và nút "Shop" */}
           <div className="flex justify-between items-center px-[4rem] mt-[4rem]">
-            <h1 className="text-4xl font-bold text-white mr-auto">Special Products</h1>
+            <h1 className="text-4xl font-bold text-white ml-40">Special Products</h1>
             <Link
               to="/shop"
               className="bg-red-600 text-white font-bold rounded-full py-2 px-10 hover:bg-red-700"
@@ -32,7 +32,7 @@ const Home = () => {
           </div>
 
           {/* Grid container cho danh sách sản phẩm */}
-          <div className="grid grid-cols-4 lg:grid-cols-4 md:grid-cols-3 sm:grid-cols-2 gap-6 justify-center mt-[2rem] px-[2rem]">
+          <div className="grid grid-cols-4 lg:grid-cols-4 md:grid-cols-3 sm:grid-cols-2 gap-6 justify-center mt-[2rem] px-[2rem] ml-40">
             {data.products.map((product) => (
               <div
                 key={product._id}

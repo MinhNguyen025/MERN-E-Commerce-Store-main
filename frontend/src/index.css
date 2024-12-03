@@ -11,3 +11,13 @@ input,
 textarea {
   color: #000;
 }
+
+footer a:hover {
+  text-decoration: underline;
+}
+
+@media (max-width: 768px) {
+  footer div {
+    margin: 10px 0;
+  }
+}

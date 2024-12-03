@@ -111,7 +111,7 @@ const Shop = () => {
             onSubmit={(e) => {
               e.preventDefault();
             }}
-            className="flex items-center bg-gray-800 p-2 rounded-lg"
+            className="flex items-center bg-black-800 p-2 rounded-lg"
           >
             <input
               type="text"

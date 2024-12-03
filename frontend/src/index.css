@@ -11,3 +11,18 @@ input,
 textarea {
   color: #000;
 }
+
+body, html {
+  height: 100%;
+  margin: 0;
+}
+
+#root {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh; /* Đảm bảo chiều cao tối thiểu là 100% viewport */
+}
+
+main {
+  flex: 1; /* Chiếm toàn bộ không gian còn lại giữa header và footer */
+}

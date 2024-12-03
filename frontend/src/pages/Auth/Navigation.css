@@ -7,7 +7,7 @@
 }
 
 #navigation-container:hover {
-  width: 10%;
+  width: 8%;
 }
 
 /* Initially hide nav-item-name */
@@ -37,3 +37,39 @@
   display: none;
   transition: opacity 0.2s ease-in-out; /* Add opacity transition */
 }
+
+/* Đảm bảo dropdown menu hiển thị chính xác */
+.dropdown-menu {
+  position: absolute; /* Đặt vị trí tuyệt đối để căn so với parent */
+  top: -60px; /* Căn chỉnh khoảng cách phía dưới nút */
+  left: 10px; /* Điều chỉnh để canh lề */
+  z-index: 9999; /* Đảm bảo menu nổi lên trên các phần tử khác */
+  background-color: white; /* Nền trắng cho menu */
+  border-radius: 8px; /* Bo góc nhẹ */
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1); /* Hiệu ứng đổ bóng */
+  width: 120px; /* Đặt chiều rộng cố định */
+  padding: 8px 0; /* Thêm padding cho các mục */
+}
+
+.dropdown-menu li {
+  padding: 8px 12px; /* Khoảng cách bên trong cho mục */
+  color: #333;
+  font-size: 14px; /* Kích thước chữ vừa phải */
+  cursor: pointer;
+  white-space: nowrap; /* Ngăn xuống dòng */
+}
+
+.dropdown-menu li:hover {
+  background-color: #f0f0f0; /* Hiệu ứng khi hover */
+}
+
+.dropdown-menu::before {
+  content: "";
+  position: absolute;
+  top: -5px; /* Vị trí mũi tên */
+  left: 20px; /* Canh lề mũi tên */
+  border-width: 5px;
+  border-style: solid;
+  border-color: transparent transparent white transparent;
+}
+

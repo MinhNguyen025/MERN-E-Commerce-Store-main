@@ -26,3 +26,13 @@ body, html {
 main {
   flex: 1; /* Chiếm toàn bộ không gian còn lại giữa header và footer */
 }
+
+footer a:hover {
+  text-decoration: underline;
+}
+
+@media (max-width: 768px) {
+  footer div {
+    margin: 10px 0;
+  }
+}

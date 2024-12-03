@@ -3,11 +3,13 @@ import { useRef } from "react";
 import {
   AiOutlineHome,
   AiOutlineShopping,
-  AiOutlineLogin,
-  AiOutlineUserAdd,
   AiOutlineShoppingCart,
+  AiFillFileAdd,
+  AiFillMedicineBox,
+  AiFillCalendar,
 } from "react-icons/ai";
-import { FaHeart } from "react-icons/fa";
+import { FaChalkboardUser } from "react-icons/fa6";
+import { FaRegHeart } from "react-icons/fa";
 import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import "./Navigation.css";
@@ -22,7 +24,9 @@ const Navigation = () => {
 
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [showSidebar, setShowSidebar] = useState(false);
-  const dropdownRef = useRef(null); // Thêm ref để theo dõi menu dropdown
+  const dropdownRef = useRef(null);
+
+  const [selectedItem, setSelectedItem] = useState("HOME"); // Trạng thái mục đang chọn
 
   const toggleDropdown = () => {
     setDropdownOpen(!dropdownOpen);
@@ -33,10 +37,13 @@ const Navigation = () => {
   };
 
   const handleMouseLeave = (event) => {
-    // Kiểm tra nếu con trỏ rời khỏi menu
     if (dropdownRef.current && !dropdownRef.current.contains(event.relatedTarget)) {
       closeDropdown();
     }
+  };
+
+  const handleItemClick = (item) => {
+    setSelectedItem(item); // Cập nhật trạng thái mục được chọn
   };
 
   const dispatch = useDispatch();
@@ -59,32 +66,46 @@ const Navigation = () => {
       style={{ zIndex: 9999 }}
       className={`${
         showSidebar ? "hidden" : "flex"
-      } xl:flex lg:flex md:hidden sm:hidden flex-col justify-between p-4 text-white bg-[#000] w-[4%] hover:w-[15%] h-[100vh]  fixed `}
+      } xl:flex lg:flex md:hidden sm:hidden flex-col justify-between p-4 text-white bg-[#000] w-[4%] hover:w-[15%] h-[100vh] fixed `}
       id="navigation-container"
     >
       <div className="flex flex-col justify-center space-y-4">
+        {/* HOME */}
         <Link
           to="/"
-          className="flex items-center transition-transform transform hover:translate-x-2"
+          className={`flex items-center transition-transform transform ${
+            selectedItem === "HOME" ? "bg-red-500" : ""
+          } hover:bg-red-500`}
+          onClick={() => handleItemClick("HOME")}
         >
           <AiOutlineHome className="mr-2 mt-[3rem]" size={26} />
-          <span className="hidden nav-item-name mt-[3rem]">HOME</span>{" "}
+          <span className="hidden nav-item-name mt-[3rem]">HOME</span>
         </Link>
 
+        {/* SHOP */}
         <Link
           to="/shop"
-          className="flex items-center transition-transform transform hover:translate-x-2"
+          className={`flex items-center transition-transform transform ${
+            selectedItem === "SHOP" ? "bg-red-500" : ""
+          } hover:bg-red-500`}
+          onClick={() => handleItemClick("SHOP")}
         >
           <AiOutlineShopping className="mr-2 mt-[3rem]" size={26} />
-          <span className="hidden nav-item-name mt-[3rem]">SHOP</span>{" "}
+          <span className="hidden nav-item-name mt-[3rem]">SHOP</span>
         </Link>
 
-        <Link to="/cart" className="flex relative">
-          <div className="flex items-center transition-transform transform hover:translate-x-2">
+        {/* CART */}
+        <Link
+          to="/cart"
+          className={`flex relative transition-transform transform ${
+            selectedItem === "CART" ? "bg-red-500" : ""
+          } hover:bg-red-500`}
+          onClick={() => handleItemClick("CART")}
+        >
+          <div className="flex items-center">
             <AiOutlineShoppingCart className="mt-[3rem] mr-2" size={26} />
-            <span className="hidden nav-item-name mt-[3rem]">Cart</span>{" "}
+            <span className="hidden nav-item-name mt-[3rem]">Cart</span>
           </div>
-
           <div className="absolute top-9">
             {cartItems.length > 0 && (
               <span>
@@ -96,140 +117,139 @@ const Navigation = () => {
           </div>
         </Link>
 
-        <Link to="/favorite" className="flex relative">
-          <div className="flex justify-center items-center transition-transform transform hover:translate-x-2">
-            <FaHeart className="mt-[3rem] mr-2" size={20} />
-            <span className="hidden nav-item-name mt-[3rem]">
-              Favorites
-            </span>{" "}
+        {/* FAVORITES */}
+        <Link
+          to="/favorite"
+          className={`flex relative transition-transform transform ${
+            selectedItem === "FAVORITE" ? "bg-red-500" : ""
+          } hover:bg-red-500`}
+          onClick={() => handleItemClick("FAVORITE")}
+        >
+          <div className="flex justify-center items-center">
+            <FaRegHeart className="mt-[3rem] mr-2" size={20} />
+            <span className="hidden nav-item-name mt-[3rem]">Favorites</span>
             <FavoritesCount />
           </div>
         </Link>
-      </div>
 
-      <div className="relative">
-        <button
-          onClick={toggleDropdown}
-          className="flex items-center text-gray-800 focus:outline-none"
-        >
-          {userInfo ? (
-            <span className="text-white">{userInfo.username}</span>
-          ) : (
-            <></>
-          )}
-          {userInfo && (
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className={`h-4 w-4 ml-1 ${
-                dropdownOpen ? "transform rotate-180" : ""
-              }`}
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="white"
+        {/* Admin-specific navigation links */}
+        {userInfo?.isAdmin && (
+          <>
+            <Link
+              to="/admin/dashboard"
+              className={`flex items-center transition-transform transform ${
+                selectedItem === "DASHBOARD" ? "bg-red-500" : ""
+              } hover:bg-red-500`}
+              onClick={() => handleItemClick("DASHBOARD")}
             >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                d={dropdownOpen ? "M5 15l7-7 7 7" : "M19 9l-7 7-7-7"}
-              />
-            </svg>
-          )}
-        </button>
+              <AiOutlineHome className="mr-2 mt-[3rem]" size={26} />
+              <span className="hidden nav-item-name mt-[3rem]">Dashboard</span>
+            </Link>
 
-        {dropdownOpen && userInfo && (
-          <ul
-            ref={dropdownRef} // Thêm ref vào menu
-            onMouseLeave={handleMouseLeave}
-            className={`absolute right-0 mt-2 mr-14 space-y-2 bg-white text-gray-600 ${
-              !userInfo.isAdmin ? "-top-20" : "-top-80"
-            } `}
-          >
-            {userInfo.isAdmin && (
-              <>
-                <li>
-                  <Link
-                    to="/admin/dashboard"
-                    className="block px-4 py-2 hover:bg-gray-100"
-                  >
-                    Dashboard
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    to="/admin/productlist"
-                    className="block px-4 py-2 hover:bg-gray-100"
-                  >
-                    Products
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    to="/admin/categorylist"
-                    className="block px-4 py-2 hover:bg-gray-100"
-                  >
-                    Category
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    to="/admin/orderlist"
-                    className="block px-4 py-2 hover:bg-gray-100"
-                  >
-                    Orders
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    to="/admin/userlist"
-                    className="block px-4 py-2 hover:bg-gray-100"
-                  >
-                    Users
-                  </Link>
-                </li>
-              </>
-            )}
+            <Link
+              to="/admin/productlist"
+              className={`flex items-center transition-transform transform ${
+                selectedItem === "PRODUCTS" ? "bg-red-500" : ""
+              } hover:bg-red-500`}
+              onClick={() => handleItemClick("PRODUCTS")}
+            >
+              <AiFillFileAdd className="mr-2 mt-[3rem]" size={26} />
+              <span className="hidden nav-item-name mt-[3rem]">Products</span>
+            </Link>
 
-            <li>
-              <Link to="/profile" className="block px-4 py-2 hover:bg-gray-100">
-                Profile
-              </Link>
-            </li>
-            <li>
-              <button
-                onClick={logoutHandler}
-                className="block w-full px-4 py-2 text-left hover:bg-gray-100"
-              >
-                Logout
-              </button>
-            </li>
-          </ul>
-        )}
-        {!userInfo && (
-          <ul>
-            <li>
-              <Link
-                to="/login"
-                className="flex items-center mt-5 transition-transform transform hover:translate-x-2"
-              >
-                <AiOutlineLogin className="mr-2 mt-[4px]" size={26} />
-                <span className="hidden nav-item-name">LOGIN</span>
-              </Link>
-            </li>
-            <li>
-              <Link
-                to="/register"
-                className="flex items-center mt-5 transition-transform transform hover:translate-x-2"
-              >
-                <AiOutlineUserAdd size={26} />
-                <span className="hidden nav-item-name">REGISTER</span>
-              </Link>
-            </li>
-          </ul>
+            <Link
+              to="/admin/categorylist"
+              className={`flex items-center transition-transform transform ${
+                selectedItem === "CATEGORIES" ? "bg-red-500" : ""
+              } hover:bg-red-500`}
+              onClick={() => handleItemClick("CATEGORIES")}
+            >
+              <AiFillMedicineBox className="mr-2 mt-[3rem]" size={26} />
+              <span className="hidden nav-item-name mt-[3rem]">Categories</span>
+            </Link>
+
+            <Link
+              to="/admin/orderlist"
+              className={`flex items-center transition-transform transform ${
+                selectedItem === "ORDERS" ? "bg-red-500" : ""
+              } hover:bg-red-500`}
+              onClick={() => handleItemClick("ORDERS")}
+            >
+              <AiFillCalendar className="mr-2 mt-[3rem]" size={26} />
+              <span className="hidden nav-item-name mt-[3rem]">Orders</span>
+            </Link>
+
+            <Link
+              to="/admin/userlist"
+              className={`flex items-center transition-transform transform ${
+                selectedItem === "USERS" ? "bg-red-500" : ""
+              } hover:bg-red-500`}
+              onClick={() => handleItemClick("USERS")}
+            >
+              <FaChalkboardUser  className="mr-2 mt-[3rem]" size={26} />
+              <span className="hidden nav-item-name mt-[3rem]">Users</span>
+            </Link>
+          </>
         )}
       </div>
+      <div className="relative">
+  <button
+    onClick={toggleDropdown}
+    className="flex items-center text-gray-800 focus:outline-none"
+  >
+    {userInfo ? (
+      <span className="text-white">{userInfo.username}</span>
+    ) : (
+      <></>
+    )}
+    {userInfo && (
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        className={`h-4 w-4 ml-1 ${
+          dropdownOpen ? "transform rotate-180" : ""
+        }`}
+        fill="none"
+        viewBox="0 0 24 24"
+        stroke="white"
+      >
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth="2"
+          d={dropdownOpen ? "M5 15l7-7 7 7" : "M19 9l-7 7-7-7"}
+        />
+      </svg>
+    )}
+  </button>
+
+{/* Dropdown menu */}
+{dropdownOpen && userInfo && (
+  <ul
+    ref={dropdownRef}
+    onMouseLeave={handleMouseLeave}
+    className="dropdown-menu"
+  >
+    <li>
+      <Link to="/profile" className="block hover:bg-gray-100">
+        Profile
+      </Link>
+    </li>
+    <li>
+      <button
+        onClick={logoutHandler}
+        className="block w-full text-left hover:bg-gray-100"
+      >
+        Logout
+      </button>
+    </li>
+  </ul>
+)}
+</div>
     </div>
   );
 };
 
 export default Navigation;
+
+
+

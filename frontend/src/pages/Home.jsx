@@ -2,11 +2,7 @@ import { Link, useParams } from "react-router-dom";
 import { useGetProductsQuery } from "../redux/api/productApiSlice";
 import Loader from "../components/Loader";
 import Message from "../components/Message";
-<<<<<<< HEAD
 import PopularProducts from "../components/PopularProducts";
-=======
-import PopularProduct from "../components/PopularProduct";
->>>>>>> a4db145ee9b2ec0992c86f8288c2b435b7246992
 import Product from "./Products/Product";
 
 const Home = () => {
@@ -15,11 +11,8 @@ const Home = () => {
 
   return (
     <>
-<<<<<<< HEAD
       {!keyword ? <PopularProducts /> : null}
-=======
-      {!keyword ? <PopularProduct /> : null}
->>>>>>> a4db145ee9b2ec0992c86f8288c2b435b7246992
+
       {isLoading ? (
         <Loader />
       ) : isError ? (

@@ -1,34 +1,17 @@
-import { useGetTopProductsQuery } from "../redux/api/productApiSlice";
-import Loader from "./Loader";
-import SmallProduct from "../pages/Products/SmallProduct";
-import ProductCarousel from "../pages/Products/ProductCarousel";
+import logo from "../images/logo.jpg";
+import React from "react";
+import { Link } from "react-router-dom";
 
 const Header = () => {
-  const { data, isLoading, error } = useGetTopProductsQuery();
-
-  if (isLoading) {
-    return <Loader />;
-  }
-
-  if (error) {
-    return <h1>ERROR</h1>;
-  }
-
   return (
-    <>
-      <div className="flex justify-around">
-        <div className="xl:block lg:hidden md:hidden:sm:hidden">
-          <div className="grid grid-cols-2">
-            {data.map((product) => (
-              <div key={product._id}>
-                <SmallProduct product={product} />
-              </div>
-            ))}
-          </div>
-        </div>
-        <ProductCarousel />
+    <header className="bg-gray-900 text-white py-4 px-6 shadow-md sticky top-0 z-50">
+      <div className="container mx-auto flex items-center">
+        <Link to="/" className="flex items-center space-x-2">
+          <img src={logo} alt="Logo" className="h-8 w-8" />
+          <span className="text-2xl font-bold">Innovate your life!</span>
+        </Link>
       </div>
-    </>
+    </header>
   );
 };
 

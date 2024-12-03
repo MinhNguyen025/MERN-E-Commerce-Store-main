@@ -98,9 +98,7 @@ const Shop = () => {
 
   // Xử lý chuyển trang
   const handlePageChange = (page) => {
-    if (page >= 1 && page <= totalPages) {
-      setCurrentPage(page);
-    }
+    setCurrentPage(page);
   };
 
   return (
@@ -113,7 +111,7 @@ const Shop = () => {
             onSubmit={(e) => {
               e.preventDefault();
             }}
-            className="flex items-center bg-black-800 p-2 rounded-lg"
+            className="flex items-center bg-gray-800 p-2 rounded-lg"
           >
             <input
               type="text"
@@ -198,56 +196,54 @@ const Shop = () => {
           {/* Danh sách sản phẩm */}
           <div className="p-3">
             <h2 className="h4 text-center mb-2">{products?.length} Products</h2>
-            <div className="flex flex-wrap justify-center gap-4">
-  {currentProducts.length === 0 ? (
-    <Loader />
-  ) : (
-    currentProducts.map((p) => (
-      <div
-        className={`min-w-[300px] max-w-[400px] w-full md:w-[calc(50%-1rem)] lg:w-[calc(33.333%-1rem)]`}
-        key={p._id}
-      >
-        <ProductCard p={p} />
-      </div>
-    ))
-  )}
-</div>
-
-
+            <div className="flex flex-wrap justify-between">
+              {currentProducts.length === 0 ? (
+                <Loader />
+              ) : (
+                currentProducts.map((p) => (
+                  <div
+                    className="w-[calc(25%-1rem)] mb-4 box-border md:w-[calc(33.333%-1rem)] sm:w-[calc(50%-1rem)] xs:w-full"
+                    key={p._id}
+                  >
+                    <ProductCard p={p} />
+                  </div>
+                ))
+              )}
+            </div>
             {/* Pagination */}
-            <div className="flex justify-center mt-4">
-              {/* Nút về trang đầu */}
+            <div className="flex justify-center mt-4 items-center">
+              {/* First Page */}
               <button
                 onClick={() => handlePageChange(1)}
                 disabled={currentPage === 1}
-                className={`px-3 py-2 mx-1 border rounded ${
+                className={`px-4 py-2 mx-1 border rounded ${
                   currentPage === 1
                     ? "bg-gray-300 text-gray-500 cursor-not-allowed"
                     : "bg-gray-200 text-gray-700 border-gray-300 hover:bg-red-100 hover:border-red-400"
                 }`}
               >
-                {"<<"}
+                «
               </button>
 
-              {/* Nút về trang trước */}
+              {/* Previous Page */}
               <button
                 onClick={() => handlePageChange(currentPage - 1)}
                 disabled={currentPage === 1}
-                className={`px-3 py-2 mx-1 border rounded ${
+                className={`px-4 py-2 mx-1 border rounded ${
                   currentPage === 1
                     ? "bg-gray-300 text-gray-500 cursor-not-allowed"
                     : "bg-gray-200 text-gray-700 border-gray-300 hover:bg-red-100 hover:border-red-400"
                 }`}
               >
-                {"<"}
+                ‹
               </button>
 
-              {/* Các nút số trang */}
+              {/* Page Numbers */}
               {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
                 <button
                   key={page}
                   onClick={() => handlePageChange(page)}
-                  className={`px-3 py-2 mx-1 border rounded ${
+                  className={`px-4 py-2 mx-1 border rounded ${
                     page === currentPage
                       ? "bg-red-600 text-white border-red-600"
                       : "bg-gray-200 text-gray-700 border-gray-300 hover:bg-red-100 hover:border-red-400"
@@ -257,32 +253,33 @@ const Shop = () => {
                 </button>
               ))}
 
-              {/* Nút đến trang sau */}
+              {/* Next Page */}
               <button
                 onClick={() => handlePageChange(currentPage + 1)}
                 disabled={currentPage === totalPages}
-                className={`px-3 py-2 mx-1 border rounded ${
+                className={`px-4 py-2 mx-1 border rounded ${
                   currentPage === totalPages
                     ? "bg-gray-300 text-gray-500 cursor-not-allowed"
                     : "bg-gray-200 text-gray-700 border-gray-300 hover:bg-red-100 hover:border-red-400"
                 }`}
               >
-                {">"}
+                ›
               </button>
 
-              {/* Nút đến trang cuối */}
+              {/* Last Page */}
               <button
                 onClick={() => handlePageChange(totalPages)}
                 disabled={currentPage === totalPages}
-                className={`px-3 py-2 mx-1 border rounded ${
+                className={`px-4 py-2 mx-1 border rounded ${
                   currentPage === totalPages
                     ? "bg-gray-300 text-gray-500 cursor-not-allowed"
                     : "bg-gray-200 text-gray-700 border-gray-300 hover:bg-red-100 hover:border-red-400"
                 }`}
               >
-                {">>"}
+                »
               </button>
             </div>
+
           </div>
         </div>
       </div>

@@ -17,6 +17,9 @@ import { useSelector, useDispatch } from "react-redux";
 import { useLogoutMutation } from "../../redux/api/usersApiSlice";
 import { logout } from "../../redux/features/auth/authSlice";
 import FavoritesCount from "../Products/FavoritesCount";
+import { clearFavorites } from "../../redux/features/favorites/favoriteSlice";
+import { clearCartItems } from "../../redux/features/cart/cartSlice";
+
 
 const Navigation = () => {
   const { userInfo } = useSelector((state) => state.auth);
@@ -54,13 +57,15 @@ const Navigation = () => {
   const logoutHandler = async () => {
     try {
       await logoutApiCall().unwrap();
-      dispatch(logout());
-      navigate("/login");
+      dispatch(clearCartItems()); // Clear cart items
+      dispatch(clearFavorites()); // Clear favorites
+      dispatch(logout()); // Clear user authentication
+      navigate("/login"); // Navigate to login page
     } catch (error) {
       console.error(error);
     }
   };
-
+  
   return (
     <div
       style={{ zIndex: 9999 }}

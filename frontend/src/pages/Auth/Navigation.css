@@ -1,13 +1,65 @@
 #navigation-container {
   width: 4%;
-  left: auto;
+  left: 0;
   transition: width 0.3s ease-in-out;
   overflow: hidden; /* Hide overflowing content during transition */
   position: fixed;
 }
 
 #navigation-container:hover {
-  width: 8%;
+  width: 11%;
+  left: 0;
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem 0;
+  margin-top: 3.5rem;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+  color: white;
+}
+
+
+.nav-item .nav-icon {
+  margin-right: 0; /* Không khoảng cách giữa icon và text khi không hover */
+  transition: all 0.3s ease;
+}
+
+.nav-item .nav-text {
+  align-self: center; /* Đảm bảo căn giữa dọc */
+}
+
+#navigation-container:hover .nav-item {
+  padding-left: 0rem; /* Đảm bảo text nằm bên phải icon khi mở rộng */
+}
+
+.nav-item .nav-icon {
+  margin-right: 0;
+  transition: all 0.3s ease;
+}
+
+.nav-item .nav-text {
+  display: none;
+  opacity: 0;
+  margin-left: 0.5rem;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+#navigation-container:hover .nav-item {
+  justify-content: flex-start;
+}
+
+#navigation-container:hover .nav-item .nav-icon {
+  margin-right: 0.5rem;
+}
+
+#navigation-container:hover .nav-item .nav-text {
+  display: inline-block;
+  opacity: 1;
+  transform: translateX(0);
 }
 
 /* Initially hide nav-item-name */

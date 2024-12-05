@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useRef } from "react";
+import { FaSignInAlt, FaUserPlus } from "react-icons/fa";
 import {
   AiOutlineHome,
   AiOutlineShopping,
@@ -78,178 +79,161 @@ const Navigation = () => {
         {/* HOME */}
         <Link
           to="/"
-          className={`flex items-center transition-transform transform ${
-            selectedItem === "HOME" ? "bg-red-500" : ""
-          } hover:bg-red-500`}
+          className={`nav-item hover:bg-red-500 ${selectedItem === "HOME" ? "bg-red-500" : ""}`}
           onClick={() => handleItemClick("HOME")}
         >
-          <AiOutlineHome className="mr-2 mt-[3rem]" size={26} />
-          <span className="hidden nav-item-name mt-[3rem]">HOME</span>
+          <AiOutlineHome className="nav-icon" size={26} />
+          <span className="nav-text">Home</span>
         </Link>
 
         {/* SHOP */}
         <Link
           to="/shop"
-          className={`flex items-center transition-transform transform ${
+          className={`nav-item hover:bg-red-500 ${
             selectedItem === "SHOP" ? "bg-red-500" : ""
           } hover:bg-red-500`}
           onClick={() => handleItemClick("SHOP")}
         >
-          <AiOutlineShopping className="mr-2 mt-[3rem]" size={26} />
-          <span className="hidden nav-item-name mt-[3rem]">SHOP</span>
+          <AiOutlineShopping className="nav-icon" size={26} />
+          <span className="nav-text">Shop</span>
         </Link>
-
-        {/* CART */}
-        <Link
-          to="/cart"
-          className={`flex relative transition-transform transform ${
-            selectedItem === "CART" ? "bg-red-500" : ""
-          } hover:bg-red-500`}
-          onClick={() => handleItemClick("CART")}
-        >
-          <div className="flex items-center">
-            <AiOutlineShoppingCart className="mt-[3rem] mr-2" size={26} />
-            <span className="hidden nav-item-name mt-[3rem]">Cart</span>
-          </div>
-          <div className="absolute top-9">
-            {cartItems.length > 0 && (
-              <span>
-                <span className="px-1 py-0 text-sm text-white bg-red-500 rounded-full">
-                  {cartItems.reduce((a, c) => a + c.qty, 0)}
-                </span>
-              </span>
-            )}
-          </div>
-        </Link>
-
-        {/* FAVORITES */}
-        <Link
-          to="/favorite"
-          className={`flex relative transition-transform transform ${
-            selectedItem === "FAVORITE" ? "bg-red-500" : ""
-          } hover:bg-red-500`}
-          onClick={() => handleItemClick("FAVORITE")}
-        >
-          <div className="flex justify-center items-center">
-            <FaRegHeart className="mt-[3rem] mr-2" size={20} />
-            <span className="hidden nav-item-name mt-[3rem]">Favorites</span>
-            <FavoritesCount />
-          </div>
-        </Link>
-
-        {/* Admin-specific navigation links */}
-        {userInfo?.isAdmin && (
+         {/* Admin-specific navigation links */}
+         {userInfo?.isAdmin && (
           <>
+            {/* Dashboard */}
             <Link
               to="/admin/dashboard"
-              className={`flex items-center transition-transform transform ${
+              className={`nav-item hover:bg-red-500 ${
                 selectedItem === "DASHBOARD" ? "bg-red-500" : ""
-              } hover:bg-red-500`}
+              }`}
               onClick={() => handleItemClick("DASHBOARD")}
             >
-              <AiOutlineHome className="mr-2 mt-[3rem]" size={26} />
-              <span className="hidden nav-item-name mt-[3rem]">Dashboard</span>
+              <AiOutlineHome className="nav-icon" size={26} />
+              <span className="nav-text">Dashboard</span>
             </Link>
 
+            {/* Products */}
             <Link
               to="/admin/productlist"
-              className={`flex items-center transition-transform transform ${
+              className={`nav-item hover:bg-red-500 ${
                 selectedItem === "PRODUCTS" ? "bg-red-500" : ""
-              } hover:bg-red-500`}
+              }`}
               onClick={() => handleItemClick("PRODUCTS")}
             >
-              <AiFillFileAdd className="mr-2 mt-[3rem]" size={26} />
-              <span className="hidden nav-item-name mt-[3rem]">Products</span>
+              <AiFillFileAdd className="nav-icon" size={26} />
+              <span className="nav-text">Products</span>
             </Link>
 
+            {/* Categories */}
             <Link
               to="/admin/categorylist"
-              className={`flex items-center transition-transform transform ${
+              className={`nav-item hover:bg-red-500 ${
                 selectedItem === "CATEGORIES" ? "bg-red-500" : ""
-              } hover:bg-red-500`}
+              }`}
               onClick={() => handleItemClick("CATEGORIES")}
             >
-              <AiFillMedicineBox className="mr-2 mt-[3rem]" size={26} />
-              <span className="hidden nav-item-name mt-[3rem]">Categories</span>
+              <AiFillMedicineBox className="nav-icon" size={26} />
+              <span className="nav-text">Categories</span>
             </Link>
 
+            {/* Orders */}
             <Link
               to="/admin/orderlist"
-              className={`flex items-center transition-transform transform ${
+              className={`nav-item hover:bg-red-500 ${
                 selectedItem === "ORDERS" ? "bg-red-500" : ""
-              } hover:bg-red-500`}
+              }`}
               onClick={() => handleItemClick("ORDERS")}
             >
-              <AiFillCalendar className="mr-2 mt-[3rem]" size={26} />
-              <span className="hidden nav-item-name mt-[3rem]">Orders</span>
+              <AiFillCalendar className="nav-icon" size={26} />
+              <span className="nav-text">Orders</span>
             </Link>
 
+            {/* Users */}
             <Link
               to="/admin/userlist"
-              className={`flex items-center transition-transform transform ${
+              className={`nav-item hover:bg-red-500 ${
                 selectedItem === "USERS" ? "bg-red-500" : ""
-              } hover:bg-red-500`}
+              }`}
               onClick={() => handleItemClick("USERS")}
             >
-              <FaChalkboardUser  className="mr-2 mt-[3rem]" size={26} />
-              <span className="hidden nav-item-name mt-[3rem]">Users</span>
+              <FaChalkboardUser className="nav-icon" size={26} />
+              <span className="nav-text">Users</span>
             </Link>
           </>
         )}
       </div>
       <div className="relative">
-  <button
-    onClick={toggleDropdown}
-    className="flex items-center text-gray-800 focus:outline-none"
-  >
-    {userInfo ? (
-      <span className="text-white">{userInfo.username}</span>
-    ) : (
-      <></>
-    )}
-    {userInfo && (
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        className={`h-4 w-4 ml-1 ${
-          dropdownOpen ? "transform rotate-180" : ""
-        }`}
-        fill="none"
-        viewBox="0 0 24 24"
-        stroke="white"
-      >
-        <path
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          strokeWidth="2"
-          d={dropdownOpen ? "M5 15l7-7 7 7" : "M19 9l-7 7-7-7"}
-        />
-      </svg>
-    )}
-  </button>
+        {userInfo ? (
+          <>
+            {/* Hiển thị Dropdown khi đã đăng nhập */}
+            <button
+              onClick={toggleDropdown}
+              className="flex items-center text-gray-800 focus:outline-none"
+            >
+              <span className="text-white">{userInfo.username}</span>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className={`h-4 w-4 ml-1 ${
+                  dropdownOpen ? "transform rotate-180" : ""
+                }`}
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="white"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d={dropdownOpen ? "M5 15l7-7 7 7" : "M19 9l-7-7-7 7"}
+                />
+              </svg>
+            </button>
 
-{/* Dropdown menu */}
-{dropdownOpen && userInfo && (
-  <ul
-    ref={dropdownRef}
-    onMouseLeave={handleMouseLeave}
-    className="dropdown-menu"
-  >
-    <li>
-      <Link to="/profile" className="block hover:bg-gray-100">
-        Profile
-      </Link>
-    </li>
-    <li>
-      <button
-        onClick={logoutHandler}
-        className="block w-full text-left hover:bg-gray-100"
-      >
-        Logout
-      </button>
-    </li>
-  </ul>
-)}
-</div>
+            {/* Dropdown menu */}
+            {dropdownOpen && (
+              <ul
+                ref={dropdownRef}
+                onMouseLeave={handleMouseLeave}
+                className="dropdown-menu"
+              >
+                <li>
+                  <Link to="/profile" className="block hover:bg-gray-100">
+                    Profile
+                  </Link>
+                </li>
+                <li>
+                  <button
+                    onClick={logoutHandler}
+                    className="block w-full text-left hover:bg-gray-100"
+                  >
+                    Logout
+                  </button>
+                </li>
+              </ul>
+            )}
+          </>
+        ) : (
+          <>
+            {/* Hiển thị nút Login và Register khi chưa đăng nhập */}
+            <div className="flex flex-col space-y-2">
+            <Link
+              to="/login"
+              className="flex items-center text-white hover:text-red-500 text-sm font-medium"
+            >
+              <FaSignInAlt className="mr-2" /> {/* Icon Login */}
+              Login
+            </Link>
+            <Link
+              to="/register"
+              className="flex items-center text-white hover:text-red-500 text-sm font-medium"
+            >
+              <FaUserPlus className="mr-2" /> {/* Icon Register */}
+              Register
+            </Link>
+            </div>
+          </>
+        )}
+      </div>
     </div>
   );
 };

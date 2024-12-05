@@ -67,122 +67,146 @@ const ProductList = () => {
   };
 
   return (
-    <div className="container xl:mx-[9rem] sm:mx-[0]">
-      <div className="flex flex-col md:flex-row">
+    <div className="container mx-auto p-6">
+      <div className="flex flex-col md:flex-row gap-6">
         <AdminMenu />
-        <div className="md:w-3/4 p-3">
-          <div className="h-12">Create Product</div>
+        <div className="flex-1">
+          <h1 className="text-2xl font-bold mb-6 text-center">Create Product</h1>
 
+          {/* Hiển thị hình ảnh đã tải lên */}
           {imageUrl && (
-            <div className="text-center">
+            <div className="text-center mb-6">
               <img
                 src={imageUrl}
                 alt="product"
-                className="block mx-auto max-h-[200px]"
+                className="block mx-auto max-h-[200px] rounded-lg shadow"
               />
             </div>
           )}
 
-          <div className="mb-3">
-            <label className="border text-white px-4 block w-full text-center rounded-lg cursor-pointer font-bold py-11">
+          {/* Upload ảnh */}
+          <div className="mb-6">
+            <label className="border text-white px-4 block w-full text-center rounded-lg cursor-pointer font-bold py-4 bg-[#2E2D2D]">
               {image ? image.name : "Upload Image"}
-
               <input
                 type="file"
                 name="image"
                 accept="image/*"
                 onChange={uploadFileHandler}
-                className={!image ? "hidden" : "text-white"}
+                className="hidden"
               />
             </label>
           </div>
 
-          <div className="p-3">
-            <div className="flex flex-wrap">
-              <div className="one">
-                <label htmlFor="name">Name</label> <br />
-                <input
-                  type="text"
-                  className="p-4 mb-3 w-[30rem] border rounded-lg bg-[#101011] text-white"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                />
-              </div>
-              <div className="two ml-10 ">
-                <label htmlFor="name block">Price</label> <br />
-                <input
-                  type="number"
-                  className="p-4 mb-3 w-[30rem] border rounded-lg bg-[#101011] text-white"
-                  value={price}
-                  onChange={(e) => setPrice(e.target.value)}
-                />
-              </div>
-            </div>
-            <div className="flex flex-wrap">
-              <div className="one">
-                <label htmlFor="name block">Quantity</label> <br />
-                <input
-                  type="number"
-                  className="p-4 mb-3 w-[30rem] border rounded-lg bg-[#101011] text-white"
-                  value={quantity}
-                  onChange={(e) => setQuantity(e.target.value)}
-                />
-              </div>
-              <div className="two ml-10 ">
-                <label htmlFor="name block">Brand</label> <br />
-                <input
-                  type="text"
-                  className="p-4 mb-3 w-[30rem] border rounded-lg bg-[#101011] text-white"
-                  value={brand}
-                  onChange={(e) => setBrand(e.target.value)}
-                />
-              </div>
+          {/* Form nhập liệu */}
+          <form onSubmit={handleSubmit} className="grid grid-cols-2 gap-x-10 gap-y-6">
+            {/* Name */}
+            <div>
+              <label htmlFor="name" className="block mb-2">
+                Name
+              </label>
+              <input
+                type="text"
+                className="p-3 w-full border rounded-lg bg-[#101011] text-white"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+              />
             </div>
 
-            <label htmlFor="" className="my-5">
+            {/* Price */}
+            <div>
+              <label htmlFor="price" className="block mb-2">
+                Price
+              </label>
+              <input
+                type="number"
+                className="p-3 w-full border rounded-lg bg-[#101011] text-white"
+                value={price}
+                onChange={(e) => setPrice(e.target.value)}
+              />
+            </div>
+
+            {/* Quantity */}
+            <div>
+              <label htmlFor="quantity" className="block mb-2">
+                Quantity
+              </label>
+              <input
+                type="number"
+                className="p-3 w-full border rounded-lg bg-[#101011] text-white"
+                value={quantity}
+                onChange={(e) => setQuantity(e.target.value)}
+              />
+            </div>
+
+            {/* Brand */}
+            <div>
+              <label htmlFor="brand" className="block mb-2">
+                Brand
+              </label>
+              <input
+                type="text"
+                className="p-3 w-full border rounded-lg bg-[#101011] text-white"
+                value={brand}
+                onChange={(e) => setBrand(e.target.value)}
+              />
+            </div>
+
+            {/* Count In Stock */}
+            <div>
+              <label htmlFor="stock" className="block mb-2">
+                Count In Stock
+              </label>
+              <input
+                type="number"
+                className="p-3 w-full border rounded-lg bg-[#101011] text-white"
+                value={stock}
+                onChange={(e) => setStock(e.target.value)}
+              />
+            </div>
+
+            {/* Category */}
+            <div>
+              <label htmlFor="category" className="block mb-2">
+                Category
+              </label>
+              <select
+                className="p-3 w-full border rounded-lg bg-[#101011] text-white"
+                onChange={(e) => setCategory(e.target.value)}
+              >
+                <option value="" disabled selected>
+                  Choose Category
+                </option>
+                {categories?.map((c) => (
+                  <option key={c._id} value={c._id}>
+                    {c.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </form>
+
+          {/* Description */}
+          <div className="mt-6">
+            <label htmlFor="description" className="block mb-2">
               Description
             </label>
             <textarea
-              type="text"
-              className="p-2 mb-3 bg-[#101011] border rounded-lg w-[95%] text-white"
+              className="p-3 w-full border rounded-lg bg-[#101011] text-white"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
+              rows="4"
             ></textarea>
-
-            <div className="flex justify-between">
-              <div>
-                <label htmlFor="name block">Count In Stock</label> <br />
-                <input
-                  type="text"
-                  className="p-4 mb-3 w-[30rem] border rounded-lg bg-[#101011] text-white"
-                  value={stock}
-                  onChange={(e) => setStock(e.target.value)}
-                />
-              </div>
-
-              <div>
-                <label htmlFor="">Category</label> <br />
-                <select
-                  placeholder="Choose Category"
-                  className="p-4 mb-3 w-[30rem] border rounded-lg bg-[#101011] text-white"
-                  onChange={(e) => setCategory(e.target.value)}
-                >
-                  {categories?.map((c) => (
-                    <option key={c._id} value={c._id}>
-                      {c.name}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            </div>
-
-            <button
-              onClick={handleSubmit}
-              className="py-4 px-10 mt-5 rounded-lg text-lg font-bold bg-red-600"
-            >
-              Submit
-            </button>
           </div>
+
+          {/* Submit button */}
+          <button
+            type="submit"
+            onClick={handleSubmit}
+            className="py-3 px-6 mt-6 w-full bg-red-600 rounded-lg text-lg font-bold text-white hover:bg-red-700"
+          >
+            Submit
+          </button>
         </div>
       </div>
     </div>

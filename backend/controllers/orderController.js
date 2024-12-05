@@ -138,7 +138,13 @@ const getAllOrders = async (req, res) => {
 
 const getUserOrders = async (req, res) => {
   try {
+    console.log("User ID from token:", req.user._id);
+
     const orders = await Order.find({ user: req.user._id });
+    if (!orders || orders.length === 0) {
+      res.status(404);
+      throw new Error("No orders found for this user");
+    }
     res.json(orders);
   } catch (error) {
     res.status(500).json({ error: error.message });

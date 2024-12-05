@@ -12,9 +12,9 @@ const Header = () => {
     <header className="bg-black-900 text-white py-4 px-6 shadow-md sticky top-0 z-50">
       <div className="container mx-auto flex items-center justify-between">
         {/* Logo */}
-        <Link to="/" className="flex items-center space-x-2">
+        <Link to="/" className="flex items-center space-x-2 ml-20">
           <img src={logo} alt="Logo" className="h-8 w-8" />
-          <span className="text-2xl font-bold">Innovate your life!</span>
+          <span className="text-2xl font-bold ">Innovate your life!</span>
         </Link>
 
         {/* Favorites and Cart */}

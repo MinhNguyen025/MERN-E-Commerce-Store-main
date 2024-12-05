@@ -11,10 +11,9 @@ const AdminMenu = () => {
 
   return (
     <>
+      {/* Nút bật/tắt menu */}
       <button
-        className={`${
-          isMenuOpen ? "top-2 right-2" : "top-5 right-7"
-        } bg-[#151515] p-2 fixed rounded-lg`}
+        className="fixed top-5 right-5 bg-[#151515] p-2 rounded-lg z-50"
         onClick={toggleMenu}
       >
         {isMenuOpen ? (
@@ -28,12 +27,13 @@ const AdminMenu = () => {
         )}
       </button>
 
+      {/* Menu */}
       {isMenuOpen && (
-        <section className="bg-[#151515] p-4 fixed right-7 top-5">
+        <section className="fixed top-16 right-5 bg-[#151515] p-4 w-64 rounded-lg shadow-lg z-40">
           <ul className="list-none mt-2">
             <li>
               <NavLink
-                className="list-item py-2 px-3 block mb-5 hover:bg-[#2E2D2D] rounded-sm"
+                className="block py-2 px-3 mb-5 hover:bg-[#2E2D2D] rounded-sm"
                 to="/admin/dashboard"
                 style={({ isActive }) => ({
                   color: isActive ? "greenyellow" : "white",
@@ -44,7 +44,7 @@ const AdminMenu = () => {
             </li>
             <li>
               <NavLink
-                className="list-item py-2 px-3 block mb-5 hover:bg-[#2E2D2D] rounded-sm"
+                className="block py-2 px-3 mb-5 hover:bg-[#2E2D2D] rounded-sm"
                 to="/admin/categorylist"
                 style={({ isActive }) => ({
                   color: isActive ? "greenyellow" : "white",
@@ -55,7 +55,7 @@ const AdminMenu = () => {
             </li>
             <li>
               <NavLink
-                className="list-item py-2 px-3 block mb-5 hover:bg-[#2E2D2D] rounded-sm"
+                className="block py-2 px-3 mb-5 hover:bg-[#2E2D2D] rounded-sm"
                 to="/admin/productlist"
                 style={({ isActive }) => ({
                   color: isActive ? "greenyellow" : "white",
@@ -66,7 +66,7 @@ const AdminMenu = () => {
             </li>
             <li>
               <NavLink
-                className="list-item py-2 px-3 block mb-5 hover:bg-[#2E2D2D] rounded-sm"
+                className="block py-2 px-3 mb-5 hover:bg-[#2E2D2D] rounded-sm"
                 to="/admin/allproductslist"
                 style={({ isActive }) => ({
                   color: isActive ? "greenyellow" : "white",
@@ -77,7 +77,7 @@ const AdminMenu = () => {
             </li>
             <li>
               <NavLink
-                className="list-item py-2 px-3 block mb-5 hover:bg-[#2E2D2D] rounded-sm"
+                className="block py-2 px-3 mb-5 hover:bg-[#2E2D2D] rounded-sm"
                 to="/admin/userlist"
                 style={({ isActive }) => ({
                   color: isActive ? "greenyellow" : "white",
@@ -88,7 +88,7 @@ const AdminMenu = () => {
             </li>
             <li>
               <NavLink
-                className="list-item py-2 px-3 block mb-5 hover:bg-[#2E2D2D] rounded-sm"
+                className="block py-2 px-3 mb-5 hover:bg-[#2E2D2D] rounded-sm"
                 to="/admin/orderlist"
                 style={({ isActive }) => ({
                   color: isActive ? "greenyellow" : "white",

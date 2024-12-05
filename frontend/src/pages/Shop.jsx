@@ -45,27 +45,26 @@ const Shop = () => {
 
   // Áp dụng bộ lọc sản phẩm
   useEffect(() => {
-    if (!checked.length || !radio.length) {
-      if (!filteredProductsQuery.isLoading) {
-        const filteredProducts = filteredProductsQuery.data.filter(
-          (product) => {
-            // Kiểm tra theo từ khóa tìm kiếm
-            const matchesSearchTerm = product.name
-              .toLowerCase()
-              .includes(searchTerm.toLowerCase());
-            // Kiểm tra theo giá
-            const matchesPrice =
-              product.price.toString().includes(priceFilter) ||
-              product.price === parseInt(priceFilter, 10);
+    if (filteredProductsQuery.data) {
+      let filteredProducts = filteredProductsQuery.data;
 
-            return matchesSearchTerm && matchesPrice;
-          }
+      // Áp dụng bộ lọc tìm kiếm
+      if (searchTerm) {
+        filteredProducts = filteredProducts.filter((product) =>
+          product.name.toLowerCase().includes(searchTerm.toLowerCase())
         );
-
-        dispatch(setProducts(filteredProducts));
       }
+
+      // Áp dụng bộ lọc giá
+      if (priceFilter) {
+        filteredProducts = filteredProducts.filter(
+          (product) => product.price === parseInt(priceFilter, 10)
+        );
+      }
+
+      dispatch(setProducts(filteredProducts));
     }
-  }, [checked, radio, filteredProductsQuery.data, dispatch, priceFilter, searchTerm]);
+  }, [filteredProductsQuery.data, searchTerm, priceFilter, dispatch]);
 
   // Bộ lọc categories
   const handleCheck = (value, id) => {
@@ -105,8 +104,8 @@ const Shop = () => {
     <>
       <div className="container mx-auto">
         {/* Thanh tìm kiếm */}
-        <div className="flex justify-between items-center mb-6">
-          <h1 className="text-3xl font-bold">Shop</h1>
+        <div className="flex justify-between items-center mb-6 mr-40">
+          <h1 className="text-3xl font-bold ml-20">Shop</h1>
           <form
             onSubmit={(e) => {
               e.preventDefault();
@@ -129,7 +128,7 @@ const Shop = () => {
           </form>
         </div>
 
-        <div className="flex md:flex-row">
+        <div className="flex md:flex-row ml-12">
           {/* Bộ lọc */}
           <div className="bg-[#151515] p-3 mt-2 mb-2">
             <h2 className="h4 text-center py-2 bg-black rounded-full mb-2">
@@ -195,7 +194,7 @@ const Shop = () => {
 
           {/* Danh sách sản phẩm */}
           <div className="p-3">
-            <h2 className="h4 text-center mb-2">{products?.length} Products</h2>
+            <h2 className="h4 mb-2 ml-auto">{products?.length} Products</h2>
             <div className="flex flex-wrap justify-between">
               {currentProducts.length === 0 ? (
                 <Loader />
@@ -279,7 +278,6 @@ const Shop = () => {
                 »
               </button>
             </div>
-
           </div>
         </div>
       </div>

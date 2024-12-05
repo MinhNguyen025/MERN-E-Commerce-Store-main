@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Order Confirmation</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f8f9fa;
+      margin: 0;
+      padding: 0;
+    }
+    .container {
+      width: 600px;
+      margin: 20px auto;
+      background-color: #ffffff;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    .header {
+      background-color: #dc2626;
+      color: white;
+      text-align: center;
+      padding: 20px;
+    }
+    .content {
+      padding: 20px;
+    }
+    .order-summary {
+      margin: 20px 0;
+      width: 100%;
+      border-collapse: collapse;
+    }
+    .order-summary th, .order-summary td {
+      border: 1px solid #ddd;
+      padding: 10px;
+      text-align: left;
+    }
+    .order-summary th {
+      background-color: #f2f2f2;
+    }
+    .footer {
+      background-color: #f8f9fa;
+      color: #666;
+      text-align: center;
+      padding: 10px;
+      font-size: 14px;
+    }
+    .total-row {
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>Thank you for your order!</h1>
+    </div>
+    <div class="content">
+      <p>Hi {{username}},</p>
+      <p>Thank you for shopping with us. Below are the details of your order:</p>
+
+      <h3>Order Details</h3>
+      <p><strong>Order ID:</strong> {{orderId}}</p>
+      <p><strong>Order Date:</strong> {{orderDate}}</p>
+      <p><strong>Shipping Address:</strong> {{shippingAddress.address}}, {{shippingAddress.city}}, {{shippingAddress.country}}</p>
+
+      <h3>Items Ordered</h3>
+      <table class="order-summary">
+        <thead>
+          <tr>
+            <th>Product</th>
+            <th>Quantity</th>
+            <th>Unit Price</th>
+            <th>Total</th>
+          </tr>
+        </thead>
+        <tbody>
+          {{#each orderItems}}
+          <tr>
+            <td>{{this.name}}</td>
+            <td>{{this.qty}}</td>
+            <td>${{this.price}}</td>
+            <td>${{this.total}}</td>
+          </tr>
+          {{/each}}
+        </tbody>
+        <tfoot>
+          <tr class="total-row">
+            <td colspan="3">Subtotal</td>
+            <td>${{subtotal}}</td>
+          </tr>
+          <tr class="total-row">
+            <td colspan="3">Tax</td>
+            <td>${{tax}}</td>
+          </tr>
+          <tr class="total-row">
+            <td colspan="3">Shipping</td>
+            <td>${{shipping}}</td>
+          </tr>
+          <tr class="total-row">
+            <td colspan="3">Total</td>
+            <td>${{total}}</td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+    <div class="footer">
+      <p>If you have any questions, feel free to contact us at support@example.com.</p>
+      <p>Thank you for choosing our store!</p>
+    </div>
+  </div>
+</body>
+</html>

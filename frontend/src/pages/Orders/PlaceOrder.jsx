@@ -34,7 +34,9 @@ const PlaceOrder = () => {
         taxPrice: cart.taxPrice,
         totalPrice: cart.totalPrice,
       }).unwrap();
+
       dispatch(clearCartItems());
+      toast.success("Order placed successfully! A confirmation email has been sent to your inbox.");
       navigate(`/order/${res._id}`);
     } catch (error) {
       toast.error(error);

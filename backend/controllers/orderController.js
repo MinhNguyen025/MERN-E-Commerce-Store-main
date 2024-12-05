@@ -1,5 +1,7 @@
 import Order from "../models/orderModel.js";
 import Product from "../models/productModel.js";
+import sendEmail from "../utils/emailService.js"; // Import hàm gửi email
+
 
 // Utility Function
 function calcPrices(orderItems) {
@@ -35,10 +37,12 @@ const createOrder = async (req, res) => {
       throw new Error("No order items");
     }
 
+    // Lấy thông tin sản phẩm từ cơ sở dữ liệu
     const itemsFromDB = await Product.find({
       _id: { $in: orderItems.map((x) => x._id) },
     });
 
+    // Khớp thông tin sản phẩm giữa client và database
     const dbOrderItems = orderItems.map((itemFromClient) => {
       const matchingItemFromDB = itemsFromDB.find(
         (itemFromDB) => itemFromDB._id.toString() === itemFromClient._id
@@ -57,9 +61,11 @@ const createOrder = async (req, res) => {
       };
     });
 
+    // Tính toán giá trị đơn hàng
     const { itemsPrice, taxPrice, shippingPrice, totalPrice } =
       calcPrices(dbOrderItems);
 
+    // Lưu đơn hàng vào cơ sở dữ liệu
     const order = new Order({
       orderItems: dbOrderItems,
       user: req.user._id,
@@ -72,11 +78,54 @@ const createOrder = async (req, res) => {
     });
 
     const createdOrder = await order.save();
+
+    // Gửi email xác nhận đơn hàng
+    const user = req.user;
+    const orderItemsForEmail = dbOrderItems.map((item) => ({
+      name: item.name,
+      qty: item.qty,
+      price: item.price.toFixed(2),
+      total: (item.qty * item.price).toFixed(2),
+    }));
+
+    const emailData = {
+      username: user.username,
+      orderId: createdOrder._id,
+      orderDate: new Date().toLocaleDateString(),
+      shippingAddress: {
+        address: shippingAddress.address,
+        city: shippingAddress.city,
+        country: shippingAddress.country,
+      },
+      orderItems: dbOrderItems.map((item) => ({
+        name: item.name,
+        qty: item.qty,
+        price: item.price.toFixed(2),
+        total: (item.qty * item.price).toFixed(2),
+      })),
+      subtotal: itemsPrice,
+      tax: taxPrice,
+      shipping: shippingPrice,
+      total: totalPrice,
+    };
+
+    try {
+      await sendEmail({
+        to: user.email,
+        subject: "Confirmation of Your Order",
+        template: "emails/orderConfirmation", // Đường dẫn tới template
+        context: emailData, // Dữ liệu truyền vào template
+      });
+    } catch (emailError) {
+      console.error("Error sending email:", emailError);
+    }
+
     res.status(201).json(createdOrder);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 };
+
 
 const getAllOrders = async (req, res) => {
   try {

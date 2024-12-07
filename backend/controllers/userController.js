@@ -167,6 +167,62 @@ const updateUserById = asyncHandler(async (req, res) => {
   }
 });
 
+// Lấy giỏ hàng của user
+const getUserCart = asyncHandler(async (req, res) => {
+  const userId = req.params.id;
+
+  if (!req.user || req.user._id.toString() !== userId.toString()) {
+    res.status(403);
+    throw new Error("Forbidden: You cannot access this user's cart");
+  }
+
+  const user = await User.findById(userId).populate('cart.product', 'name price image countInStock');
+
+  if (!user) {
+    res.status(404);
+    throw new Error("User not found");
+  }
+
+  res.json(user.cart.map(item => ({
+    _id: item.product._id,
+    name: item.product.name,
+    price: item.product.price,
+    image: item.product.image,
+    qty: item.qty,
+    countInStock: item.product.countInStock
+  })));
+});
+
+// Cập nhật giỏ hàng của user
+const updateUserCart = asyncHandler(async (req, res) => {
+  const userId = req.params.id;
+
+  if (!req.user || req.user._id.toString() !== userId.toString()) {
+    res.status(403);
+    throw new Error("Forbidden: You cannot update this user's cart");
+  }
+
+  const { cartItems } = req.body;
+
+  const user = await User.findById(userId);
+  if (!user) {
+    res.status(404);
+    throw new Error("User not found");
+  }
+
+  // cartItems là một mảng chứa các object { product: productId, qty: number }
+  // Cập nhật user.cart bằng cartItems mới
+  user.cart = cartItems.map((item) => ({
+    product: item._id, // chú ý: frontend có thể đang dùng _id hoặc product._id, bạn cần thống nhất
+    qty: item.qty,
+  }));
+
+  await user.save();
+
+  res.json({ message: "Cart updated successfully", cart: user.cart });
+});
+
+
 export {
   createUser,
   loginUser,
@@ -177,4 +233,6 @@ export {
   deleteUserById,
   getUserById,
   updateUserById,
+  updateUserCart,
+  getUserCart,
 };

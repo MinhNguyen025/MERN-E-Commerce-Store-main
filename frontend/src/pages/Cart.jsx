@@ -3,21 +3,39 @@ import { useDispatch, useSelector } from "react-redux";
 import { FaTrash } from "react-icons/fa";
 import { addToCart, removeFromCart } from "../redux/features/cart/cartSlice";
 import emptyCartImage from "../images/empty-cart.png";
-
+import { useUpdateUserCartMutation } from "../redux/api/usersApiSlice";
+import store from "../redux/store";
 
 const Cart = () => {
+
+  const { userInfo } = useSelector((state) => state.auth);
+  const [updateUserCart] = useUpdateUserCartMutation();
+
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
   const cart = useSelector((state) => state.cart);
-  const { cartItems } = cart;
+  const { cartItems } = useSelector(state => state.cart);
 
-  const addToCartHandler = (product, qty) => {
+  const addToCartHandler = async (product, qty) => {
     dispatch(addToCart({ ...product, qty }));
+
+    if (userInfo) {
+      const state = store.getState(); 
+      const { cartItems } = store.getState().cart; 
+      // Truyền trực tiếp cartItems từ store sau khi cập nhật, không cần thêm product vào mảng nữa
+      await updateUserCart({ userId: userInfo._id, cartItems });
+    }
   };
 
-  const removeFromCartHandler = (id) => {
+  const removeFromCartHandler = async (id) => {
     dispatch(removeFromCart(id));
+
+    if (userInfo) {
+      const state = store.getState();
+      const { cartItems } = store.getState().cart; 
+      await updateUserCart({ userId: userInfo._id, cartItems });
+    }
   };
 
   const checkoutHandler = () => {
@@ -28,23 +46,23 @@ const Cart = () => {
     <>
       <div className="container flex justify-around items-start flex wrap mx-auto mt-8">
         {cartItems.length === 0 ? (
-        <div className="flex flex-col items-center justify-center h-screen text-center">
-        <img
-          src={emptyCartImage} // image path
-          alt="Empty Cart"
-          className="w-[300px] mb-6" // fix images
-        />
-        <h2 className="text-2xl font-semibold mb-4">Your cart is empty</h2>
-        <p className="mb-6 text-gray-500">
-          Build a prototype to bring your designs to life. Create a board for custom moodboards and galleries.
-        </p>
-        <Link
-          to="/shop"
-          className="bg-red-500 text-white px-6 py-3 rounded-full text-lg hover:bg-red-600 transition"
-        >
-          Go to Shop
-        </Link>
-      </div>
+          <div className="flex flex-col items-center justify-center h-screen text-center">
+            <img
+              src={emptyCartImage}
+              alt="Empty Cart"
+              className="w-[300px] mb-6"
+            />
+            <h2 className="text-2xl font-semibold mb-4">Your cart is empty</h2>
+            <p className="mb-6 text-gray-500">
+              Build a prototype to bring your designs to life. Create a board for custom moodboards and galleries.
+            </p>
+            <Link
+              to="/shop"
+              className="bg-red-500 text-white px-6 py-3 rounded-full text-lg hover:bg-red-600 transition"
+            >
+              Go to Shop
+            </Link>
+          </div>
         ) : (
           <>
             <div className="flex flex-col w-[80%]">

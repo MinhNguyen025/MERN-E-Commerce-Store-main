@@ -28,7 +28,6 @@ const UserOrder = () => {
       <th className="py-2 px-4 border border-gray-400">ACTION</th>
     </tr>
   </thead>
-
   <tbody>
     {orders.map((order) => (
       <tr key={order._id} className="hover:bg-red-100 hover:text-black transition duration-200">

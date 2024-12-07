@@ -1,10 +1,11 @@
-import { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import Loader from "../../components/Loader";
 import { useLoginMutation } from "../../redux/api/usersApiSlice";
 import { setCredentials } from "../../redux/features/auth/authSlice";
 import { toast } from "react-toastify";
+import { setCartItemsFromDB } from "../../redux/features/cart/cartSlice";
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -12,28 +13,47 @@ const Login = () => {
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
-
   const [login, { isLoading }] = useLoginMutation();
-
   const { userInfo } = useSelector((state) => state.auth);
 
   const { search } = useLocation();
   const sp = new URLSearchParams(search);
   const redirect = sp.get("redirect") || "/";
 
-  useEffect(() => {
-    if (userInfo) {
-      navigate(redirect);
+  const handleLoginSuccess = async (user) => {
+    // user chứa thông tin userInfo (_id, username, email...)
+    const userId = user._id;
+    try {
+      const response = await fetch(`/api/users/${userId}/cart`, {
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        credentials: 'include'
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch cart');
+      }
+
+      const cartData = await response.json();
+      // Cập nhật cart vào Redux
+      dispatch(setCartItemsFromDB(cartData));
+    } catch (err) {
+      console.error('Error fetching cart:', err);
     }
-  }, [navigate, redirect, userInfo]);
+
+    // Fetch cart xong thì chuyển hướng
+    navigate(redirect);
+  };
 
   const submitHandler = async (e) => {
     e.preventDefault();
     try {
       const res = await login({ email, password }).unwrap();
-      console.log(res);
+      // Lưu thông tin đăng nhập vào Redux
       dispatch(setCredentials({ ...res }));
-      navigate(redirect);
+      // Sau khi login thành công thì load giỏ hàng và navigate
+      await handleLoginSuccess(res);
     } catch (err) {
       toast.error(err?.data?.message || err.error);
     }

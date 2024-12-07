@@ -10,8 +10,8 @@ import {
   getUserById,
   updateUserById,
 } from "../controllers/userController.js";
-
 import { authenticate, authorizeAdmin } from "../middlewares/authMiddleware.js";
+import { getUserCart, updateUserCart } from "../controllers/userController.js";
 
 const router = express.Router();
 
@@ -34,5 +34,10 @@ router
   .delete(authenticate, authorizeAdmin, deleteUserById)
   .get(authenticate, authorizeAdmin, getUserById)
   .put(authenticate, authorizeAdmin, updateUserById);
+
+// CART ROUTES - USER NEEDS TO BE AUTHENTICATED AND OWN THE CART
+router.route("/:id/cart")
+  .get(authenticate, getUserCart)
+  .post(authenticate, updateUserCart);
 
 export default router;

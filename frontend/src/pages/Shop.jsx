@@ -24,7 +24,7 @@ const Shop = () => {
 
   // State phân trang
   const [currentPage, setCurrentPage] = useState(1); // Trang hiện tại
-  const itemsPerPage = 6; // Số sản phẩm hiển thị mỗi trang
+  const itemsPerPage = 8; // Số sản phẩm hiển thị mỗi trang
 
   const filteredProductsQuery = useGetFilteredProductsQuery({
     checked,
@@ -195,20 +195,16 @@ const Shop = () => {
           {/* Danh sách sản phẩm */}
           <div className="p-3">
             <h2 className="h4 mb-2 ml-auto">{products?.length} Products</h2>
-            <div className="flex flex-wrap justify-between">
-              {currentProducts.length === 0 ? (
-                <Loader />
-              ) : (
-                currentProducts.map((p) => (
-                  <div
-                    className="w-[calc(25%-1rem)] mb-4 box-border md:w-[calc(33.333%-1rem)] sm:w-[calc(50%-1rem)] xs:w-full"
-                    key={p._id}
-                  >
-                    <ProductCard p={p} />
-                  </div>
-                ))
-              )}
-            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+  {currentProducts.length === 0 ? (
+    <Loader />
+  ) : (
+    currentProducts.map((p) => (
+      <ProductCard key={p._id} p={p} />
+    ))
+  )}
+</div>
+
             {/* Pagination */}
             <div className="flex justify-center mt-4 items-center">
               {/* First Page */}

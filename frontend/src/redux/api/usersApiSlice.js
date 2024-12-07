@@ -57,6 +57,21 @@ export const userApiSlice = apiSlice.injectEndpoints({
       }),
       invalidatesTags: ["User"],
     }),
+    // Endpoint lấy giỏ hàng của user
+    getUserCart: builder.query({
+      query: (userId) => `${USERS_URL}/${userId}/cart`,
+      providesTags: ["User"], 
+    }),
+
+    // Endpoint cập nhật giỏ hàng của user
+    updateUserCart: builder.mutation({
+      query: ({ userId, cartItems }) => ({
+        url: `${USERS_URL}/${userId}/cart`,
+        method: "POST",
+        body: { cartItems },
+      }),
+      invalidatesTags: ["User"],
+    }),
   }),
 });
 
@@ -69,4 +84,6 @@ export const {
   useDeleteUserMutation,
   useUpdateUserMutation,
   useGetUserDetailsQuery,
+  useGetUserCartQuery, 
+  useUpdateUserCartMutation
 } = userApiSlice;

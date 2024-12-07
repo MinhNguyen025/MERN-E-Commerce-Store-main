@@ -59,7 +59,6 @@ const Navigation = () => {
     try {
       await logoutApiCall().unwrap();
       dispatch(clearCartItems()); // Clear cart items
-      dispatch(clearFavorites()); // Clear favorites
       dispatch(logout()); // Clear user authentication
       navigate("/login"); // Navigate to login page
     } catch (error) {

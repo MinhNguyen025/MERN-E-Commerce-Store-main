@@ -44,6 +44,15 @@ const cartSlice = createSlice({
     },
 
     resetCart: (state) => (state = initialState),
+    
+    setCartItemsFromDB: (state, action) => {
+      // action.payload sẽ là mảng cartItems lấy từ DB
+      state.cartItems = action.payload; 
+      // Cập nhật localStorage để đồng bộ
+      localStorage.setItem("cart", JSON.stringify(state));
+    },
+
+
   },
 });
 
@@ -54,6 +63,7 @@ export const {
   saveShippingAddress,
   clearCartItems,
   resetCart,
+  setCartItemsFromDB,
 } = cartSlice.actions;
 
 export default cartSlice.reducer;

@@ -120,12 +120,23 @@ const fetchProductById = asyncHandler(async (req, res) => {
 
 const fetchAllProducts = asyncHandler(async (req, res) => {
   try {
+    const page = parseInt(req.query.page) || 1; // Trang hiện tại
+    const limit = parseInt(req.query.limit) || 5; // Số sản phẩm mỗi trang
+    const skip = (page - 1) * limit; // Số sản phẩm cần bỏ qua
+
+    const count = await Product.countDocuments(); // Tổng số sản phẩm
     const products = await Product.find({})
       .populate("category")
-      .limit(12)
-      .sort({ createAt: -1 });
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit);
 
-    res.json(products);
+    res.json({
+      products,
+      page,
+      totalPages: Math.ceil(count / limit),
+      totalProducts: count,
+    });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Server Error" });

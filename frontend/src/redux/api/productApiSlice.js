@@ -20,9 +20,13 @@ export const productApiSlice = apiSlice.injectEndpoints({
     }),
 
     allProducts: builder.query({
-      query: () => `${PRODUCT_URL}/allProducts`,
+      query: ({ page, limit }) => ({
+        url: `${PRODUCT_URL}/allProducts`,
+        params: { page, limit },
+      }),
+      keepUnusedDataFor: 0, // Cache sẽ hết hạn ngay lập tức
     }),
-
+    
     getProductDetails: builder.query({
       query: (productId) => ({
         url: `${PRODUCT_URL}/${productId}`,

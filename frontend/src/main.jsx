@@ -18,7 +18,7 @@ import UserList from "./pages/Admin/UserList";
 
 import CategoryList from "./pages/Admin/CategoryList";
 
-import ProductList from "./pages/Admin/ProductList";
+import AddProduct from "./pages/Admin/AddProduct";
 import AllProducts from "./pages/Admin/AllProducts";
 import ProductUpdate from "./pages/Admin/ProductUpdate";
 
@@ -52,7 +52,6 @@ const router = createBrowserRouter(
       <Route path="" element={<PrivateRoute />}>
         <Route path="/profile" element={<Profile />} />
         <Route path="/user-orders" element={<UserOrder />} />
-
         <Route path="/shipping" element={<Shipping />} />
         <Route path="/placeorder" element={<PlaceOrder />} />
         <Route path="/order/:id" element={<Order />} />
@@ -61,9 +60,9 @@ const router = createBrowserRouter(
       <Route path="/admin" element={<AdminRoute />}>
         <Route path="userlist" element={<UserList />} />
         <Route path="categorylist" element={<CategoryList />} />
-        <Route path="productlist" element={<ProductList />} />
+        <Route path="AddProduct" element={<AddProduct />} />
         <Route path="allproductslist" element={<AllProducts />} />
-        <Route path="productlist/:pageNumber" element={<ProductList />} />
+        <Route path="AddProduct/:pageNumber" element={<AddProduct />} />
         <Route path="product/update/:_id" element={<ProductUpdate />} />
         <Route path="orderlist" element={<OrderList />} />
         <Route path="dashboard" element={<AdminDashboard />} />

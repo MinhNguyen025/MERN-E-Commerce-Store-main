@@ -14,6 +14,7 @@ import AdminMenu from "./AdminMenu";
 const CategoryList = () => {
   const { data: categories } = useFetchCategoriesQuery();
   const [name, setName] = useState("");
+  const [searchKeyword, setSearchKeyword] = useState("");
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [updatingName, setUpdatingName] = useState("");
   const [modalVisible, setModalVisible] = useState(false);
@@ -21,6 +22,11 @@ const CategoryList = () => {
   const [createCategory] = useCreateCategoryMutation();
   const [updateCategory] = useUpdateCategoryMutation();
   const [deleteCategory] = useDeleteCategoryMutation();
+
+  // Filter categories based on search keyword
+  const filteredCategories = categories?.filter((category) =>
+    category.name.toLowerCase().includes(searchKeyword.toLowerCase())
+  );
 
   const handleCreateCategory = async (e) => {
     e.preventDefault();
@@ -86,8 +92,12 @@ const CategoryList = () => {
       }
     } catch (error) {
       console.error(error);
-      toast.error("Category delection failed. Tray again.");
+      toast.error("Category deletion failed. Try again.");
     }
+  };
+
+  const handleSearch = (e) => {
+    e.preventDefault();
   };
 
   return (
@@ -95,6 +105,7 @@ const CategoryList = () => {
       <AdminMenu />
       <div className="md:w-3/4 p-3">
         <div className="h-12">Manage Categories</div>
+        <h1>Add a category</h1>
         <CategoryForm
           value={name}
           setValue={setName}
@@ -103,23 +114,41 @@ const CategoryList = () => {
         <br />
         <hr />
 
+        {/* Search Input */}
+        <div className="my-4">
+          <input
+            type="text"
+            placeholder="Search categories..."
+            className="border p-2 rounded w-full"
+            value={searchKeyword}
+            onChange={(e) => setSearchKeyword(e.target.value)}
+            onKeyPress={(e) => {
+              if (e.key === "Enter") handleSearch(e);
+            }}
+          />
+        </div>
+
         <div className="flex flex-wrap">
-          {categories?.map((category) => (
-            <div key={category._id}>
-              <button
-                className="bg-white border border-red-500 text-red-500 py-2 px-4 rounded-lg m-3 hover:bg-red-500 hover:text-white focus:outline-none foucs:ring-2 focus:ring-red-500 focus:ring-opacity-50"
-                onClick={() => {
-                  {
-                    setModalVisible(true);
-                    setSelectedCategory(category);
-                    setUpdatingName(category.name);
-                  }
-                }}
-              >
-                {category.name}
-              </button>
-            </div>
-          ))}
+          {filteredCategories?.length > 0 ? (
+            filteredCategories.map((category) => (
+              <div key={category._id}>
+                <button
+                  className="bg-white border border-red-500 text-red-500 py-2 px-4 rounded-lg m-3 hover:bg-red-500 hover:text-white focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-opacity-50"
+                  onClick={() => {
+                    {
+                      setModalVisible(true);
+                      setSelectedCategory(category);
+                      setUpdatingName(category.name);
+                    }
+                  }}
+                >
+                  {category.name}
+                </button>
+              </div>
+            ))
+          ) : (
+            <div className="text-gray-500 text-center w-full">No categories found</div>
+          )}
         </div>
 
         <Modal isOpen={modalVisible} onClose={() => setModalVisible(false)}>

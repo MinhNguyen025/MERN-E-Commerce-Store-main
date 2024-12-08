@@ -128,29 +128,26 @@ const createOrder = async (req, res) => {
 
 const getAllOrders = async (req, res) => {
   try {
-    const { page = 1, limit = 5 } = req.query;
+    const { page = 1, limit = 5, search = "" } = req.query;
 
-    console.log(`Page: ${page}, Limit: ${limit}, Skip: ${(page - 1) * limit}`); // Log kiểm tra query
+    // Tạo query để tìm kiếm theo ID (hoặc bạn có thể mở rộng để tìm kiếm theo nhiều trường)
+    const query = search
+      ? { _id: { $regex: search, $options: "i" } } // Tìm kiếm không phân biệt hoa thường
+      : {};
 
-    const skip = (page - 1) * limit;
-
-    const orders = await Order.find({})
-      .populate("user", "id username")
-      .skip(skip)
+    // Lấy danh sách đơn hàng dựa trên query
+    const orders = await Order.find(query)
+      .skip((page - 1) * limit)
       .limit(parseInt(limit));
 
-    const total = await Order.countDocuments();
+    const total = await Order.countDocuments(query);
 
-    res.json({
-      orders,
-      total,
-      page: parseInt(page),
-      pages: Math.ceil(total / limit),
-    });
+    res.json({ orders, total, pages: Math.ceil(total / limit) });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 };
+
 
 const getUserOrders = async (req, res) => {
   try {

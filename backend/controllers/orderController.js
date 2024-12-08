@@ -126,11 +126,27 @@ const createOrder = async (req, res) => {
   }
 };
 
-
 const getAllOrders = async (req, res) => {
   try {
-    const orders = await Order.find({}).populate("user", "id username");
-    res.json(orders);
+    const { page = 1, limit = 5 } = req.query;
+
+    console.log(`Page: ${page}, Limit: ${limit}, Skip: ${(page - 1) * limit}`); // Log kiểm tra query
+
+    const skip = (page - 1) * limit;
+
+    const orders = await Order.find({})
+      .populate("user", "id username")
+      .skip(skip)
+      .limit(parseInt(limit));
+
+    const total = await Order.countDocuments();
+
+    res.json({
+      orders,
+      total,
+      page: parseInt(page),
+      pages: Math.ceil(total / limit),
+    });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

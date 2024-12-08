@@ -39,10 +39,12 @@ export const orderApiSlice = apiSlice.injectEndpoints({
     }),
 
     getOrders: builder.query({
-      query: () => ({
-        url: ORDERS_URL,
+      query: ({ page = 1, limit = 5 }) => ({
+        // Truyền tham số page và limit qua URL
+        url: `${ORDERS_URL}?page=${page}&limit=${limit}`,
       }),
     }),
+    
 
     deliverOrder: builder.mutation({
       query: (orderId) => ({

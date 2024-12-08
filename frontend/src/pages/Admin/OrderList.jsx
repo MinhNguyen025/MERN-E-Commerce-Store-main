@@ -41,55 +41,53 @@ const OrderList = () => {
               </tr>
             </thead>
             <tbody>
-  {data.orders.map((order) => (
-    <tr
-      key={order._id}
-      className="group hover:bg-gray-100 transition duration-200"
-    >
-      <td className="border border-gray-300 text-center text-white group-hover:text-black">
-        <img
-          src={order.orderItems[0].image}
-          alt={order._id}
-          className="w-12 h-12 object-cover mx-auto"
-        />
-      </td>
-      <td className="border border-gray-300 px-4 py-2 text-center text-white group-hover:text-black">
-        {order._id}
-      </td>
-      <td className="border border-gray-300 px-4 py-2 text-center text-white group-hover:text-black">
-        {order.createdAt ? order.createdAt.substring(0, 10) : "N/A"}
-      </td>
-      <td className="border border-gray-300 px-4 py-2 text-center text-white group-hover:text-black">
-        $ {order.totalPrice}
-      </td>
-      <td className="border border-gray-300 px-4 py-2 text-center text-white">
-        {order.isPaid ? (
-          <span className="text-green-500 font-semibold">Completed</span>
-        ) : (
-          <span className="text-red-500 font-semibold">Pending</span>
-        )}
-      </td>
-      <td className="border border-gray-300 px-4 py-2 text-center text-white">
-        {order.isDelivered ? (
-          <span className="text-green-500 font-semibold">Completed</span>
-        ) : (
-          <span className="text-red-500 font-semibold">Pending</span>
-        )}
-      </td>
-      <td className="border border-gray-300 px-4 py-2 text-center">
-        <Link
-          to={`/order/${order._id}`}
-          className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600 transition duration-200"
-        >
-          View Details
-        </Link>
-      </td>
-    </tr>
-  ))}
-</tbody>
-
+              {data.orders.map((order) => (
+                <tr
+                  key={order._id}
+                  className="group hover:bg-gray-100 transition duration-200"
+                >
+                  <td className="border border-gray-300 text-center text-white group-hover:text-black">
+                    <img
+                      src={order.orderItems[0].image}
+                      alt={order._id}
+                      className="w-12 h-12 object-cover mx-auto"
+                    />
+                  </td>
+                  <td className="border border-gray-300 px-4 py-2 text-center text-white group-hover:text-black">
+                    {order._id}
+                  </td>
+                  <td className="border border-gray-300 px-4 py-2 text-center text-white group-hover:text-black">
+                    {order.createdAt ? order.createdAt.substring(0, 10) : "N/A"}
+                  </td>
+                  <td className="border border-gray-300 px-4 py-2 text-center text-white group-hover:text-black">
+                    $ {order.totalPrice}
+                  </td>
+                  <td className="border border-gray-300 px-4 py-2 text-center text-white">
+                    {order.isPaid ? (
+                      <span className="text-green-500 font-semibold">Completed</span>
+                    ) : (
+                      <span className="text-red-500 font-semibold">Pending</span>
+                    )}
+                  </td>
+                  <td className="border border-gray-300 px-4 py-2 text-center text-white">
+                    {order.isDelivered ? (
+                      <span className="text-green-500 font-semibold">Completed</span>
+                    ) : (
+                      <span className="text-red-500 font-semibold">Pending</span>
+                    )}
+                  </td>
+                  <td className="border border-gray-300 px-4 py-2 text-center">
+                    <Link
+                      to={`/order/${order._id}`}
+                      className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600 transition duration-200"
+                    >
+                      View Details
+                    </Link>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
           </table>
-
           {/* Thanh phân trang */}
           <div className="flex justify-center items-center mt-4 gap-2">
             <button

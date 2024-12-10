@@ -77,7 +77,7 @@ const ProductDetails = () => {
 
       try {
         await updateUserCart({ userId: userInfo._id, cartItems: formattedCartItems }).unwrap();
-        toast.success("Cart updated on server!");
+        // toast.success("Cart updated on server!");
       } catch (error) {
         toast.error(error?.data?.message || error.message);
       }

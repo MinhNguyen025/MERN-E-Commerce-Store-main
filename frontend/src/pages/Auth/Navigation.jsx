@@ -75,27 +75,33 @@ const Navigation = () => {
       id="navigation-container"
     >
       <div className="flex flex-col justify-center space-y-4">
-        {/* HOME */}
-        <Link
-          to="/"
-          className={`nav-item hover:bg-red-500 ${selectedItem === "HOME" ? "bg-red-500" : ""}`}
-          onClick={() => handleItemClick("HOME")}
-        >
-          <AiOutlineHome className="nav-icon" size={26} />
-          <span className="nav-text">Home</span>
-        </Link>
+      {!userInfo?.isAdmin && (
+          <>
+            {/* HOME */}
+            <Link
+              to="/"
+              className={`nav-item hover:bg-red-500 ${
+                selectedItem === "HOME" ? "bg-red-500" : ""
+              }`}
+              onClick={() => handleItemClick("HOME")}
+            >
+              <AiOutlineHome className="nav-icon" size={26} />
+              <span className="nav-text">Home</span>
+            </Link>
 
-        {/* SHOP */}
-        <Link
-          to="/shop"
-          className={`nav-item hover:bg-red-500 ${
-            selectedItem === "SHOP" ? "bg-red-500" : ""
-          } hover:bg-red-500`}
-          onClick={() => handleItemClick("SHOP")}
-        >
-          <AiOutlineShopping className="nav-icon" size={26} />
-          <span className="nav-text">Shop</span>
-        </Link>
+            {/* SHOP */}
+            <Link
+              to="/shop"
+              className={`nav-item hover:bg-red-500 ${
+                selectedItem === "SHOP" ? "bg-red-500" : ""
+              }`}
+              onClick={() => handleItemClick("SHOP")}
+            >
+              <AiOutlineShopping className="nav-icon" size={26} />
+              <span className="nav-text">Shop</span>
+            </Link>
+          </>
+        )}
          {/* Admin-specific navigation links */}
          {userInfo?.isAdmin && (
           <>

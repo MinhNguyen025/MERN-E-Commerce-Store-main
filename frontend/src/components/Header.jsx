@@ -6,7 +6,8 @@ import logo from "../images/logo.jpg";
 
 const Header = () => {
   const { cartItems } = useSelector((state) => state.cart);
-  const { favoriteItems } = useSelector((state) => state.favorites); // Sử dụng state cho Favorites
+  const { favoriteItems } = useSelector((state) => state.favorites);
+  const { userInfo } = useSelector((state) => state.auth); // Lấy thông tin user từ Redux
 
   return (
     <header className="bg-black-900 text-white py-4 px-6 shadow-md sticky top-0 z-50">
@@ -18,27 +19,29 @@ const Header = () => {
         </Link>
 
         {/* Favorites and Cart */}
-        <div className="flex items-center space-x-6">
-          {/* Favorites */}
-          <Link to="/favorite" className="relative flex items-center">
-            <FaHeart size={24} />
-            {favoriteItems?.length > 0 && (
-              <span className="absolute -top-1 -right-2 text-xs bg-red-500 text-white rounded-full px-1">
-                {favoriteItems.length}
-              </span>
-            )}
-          </Link>
+        {!userInfo?.isAdmin && ( // Chỉ hiển thị khi không phải admin
+          <div className="flex items-center space-x-6">
+            {/* Favorites */}
+            <Link to="/favorite" className="relative flex items-center">
+              <FaHeart size={24} />
+              {favoriteItems?.length > 0 && (
+                <span className="absolute -top-1 -right-2 text-xs bg-red-500 text-white rounded-full px-1">
+                  {favoriteItems.length}
+                </span>
+              )}
+            </Link>
 
-          {/* Cart */}
-          <Link to="/cart" className="relative flex items-center">
-            <FaShoppingCart size={24} />
-            {cartItems?.length > 0 && (
-              <span className="absolute -top-1 -right-2 text-xs bg-red-500 text-white rounded-full px-1">
-                {cartItems.reduce((acc, item) => acc + item.qty, 0)}
-              </span>
-            )}
-          </Link>
-        </div>
+            {/* Cart */}
+            <Link to="/cart" className="relative flex items-center">
+              <FaShoppingCart size={24} />
+              {cartItems?.length > 0 && (
+                <span className="absolute -top-1 -right-2 text-xs bg-red-500 text-white rounded-full px-1">
+                  {cartItems.reduce((acc, item) => acc + item.qty, 0)}
+                </span>
+              )}
+            </Link>
+          </div>
+        )}
       </div>
     </header>
   );

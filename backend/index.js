@@ -3,6 +3,7 @@ import path from "path";
 import express from "express";
 import dotenv from "dotenv";
 import cookieParser from "cookie-parser";
+import cors from "cors";
 
 // Utiles
 import connectDB from "./config/db.js";
@@ -18,6 +19,14 @@ const port = process.env.PORT || 5000;
 connectDB();
 
 const app = express();
+
+// Cấu hình CORS
+const allowedOrigins = ["http://localhost:5173"]; // Thêm các origin bạn muốn cho phép
+
+app.use(cors({
+  origin: allowedOrigins, // Cho phép các origin trong danh sách
+  credentials: true, // Cho phép gửi cookie và thông tin xác thực
+}));
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -36,4 +45,8 @@ app.get("/api/config/paypal", (req, res) => {
 const __dirname = path.resolve();
 app.use("/uploads", express.static(path.join(__dirname + "/uploads")));
 
-app.listen(port, () => console.log(`Server running on port: ${port}`));
+const PORT = process.env.PORT || 5000;
+
+app.listen(PORT, () => {
+  console.log(`Server running on port: ${PORT}`);
+});

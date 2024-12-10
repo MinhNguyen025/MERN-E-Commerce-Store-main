@@ -19,22 +19,29 @@ const Cart = () => {
 
   const addToCartHandler = async (product, qty) => {
     dispatch(addToCart({ ...product, qty }));
-
+  
     if (userInfo) {
-      const state = store.getState(); 
       const { cartItems } = store.getState().cart; 
-      // Truyền trực tiếp cartItems từ store sau khi cập nhật, không cần thêm product vào mảng nữa
-      await updateUserCart({ userId: userInfo._id, cartItems });
+      // Chuyển đổi cartItems để sử dụng 'product' thay vì '_id'
+      const formattedCartItems = cartItems.map(item => ({
+        product: item._id,
+        qty: item.qty,
+      }));
+      await updateUserCart({ userId: userInfo._id, cartItems: formattedCartItems });
     }
   };
-
+  
   const removeFromCartHandler = async (id) => {
     dispatch(removeFromCart(id));
-
+  
     if (userInfo) {
-      const state = store.getState();
       const { cartItems } = store.getState().cart; 
-      await updateUserCart({ userId: userInfo._id, cartItems });
+      // Chuyển đổi cartItems để sử dụng 'product' thay vì '_id'
+      const formattedCartItems = cartItems.map(item => ({
+        product: item._id,
+        qty: item.qty,
+      }));
+      await updateUserCart({ userId: userInfo._id, cartItems: formattedCartItems });
     }
   };
 

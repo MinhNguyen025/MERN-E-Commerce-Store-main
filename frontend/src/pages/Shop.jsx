@@ -1,8 +1,8 @@
-import { useEffect, useState } from "react";
+// src/pages/Shop.js
+import { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useGetFilteredProductsQuery } from "../redux/api/productApiSlice";
 import { useFetchCategoriesQuery } from "../redux/api/categoryApiSlice";
-
 import {
   setCategories,
   setProducts,
@@ -10,12 +10,17 @@ import {
 } from "../redux/features/shop/shopSlice";
 import Loader from "../components/Loader";
 import ProductCard from "./Products/ProductCard";
+import { useUpdateUserCartMutation } from "../redux/api/usersApiSlice"; // Import mutation
+import { addToCart } from "../redux/features/cart/cartSlice";
+import { toast } from "react-toastify";
 
 const Shop = () => {
   const dispatch = useDispatch();
   const { categories, products, checked, radio } = useSelector(
     (state) => state.shop
   );
+  const { userInfo } = useSelector((state) => state.auth);
+  const { cartItems } = useSelector((state) => state.cart); // Lấy cartItems từ Redux
 
   const categoriesQuery = useFetchCategoriesQuery();
   const [priceFilter, setPriceFilter] = useState(""); // Bộ lọc theo giá
@@ -94,6 +99,33 @@ const Shop = () => {
 
   // Tổng số trang
   const totalPages = Math.ceil(products.length / itemsPerPage);
+
+  // Sử dụng mutation
+  const [updateUserCart] = useUpdateUserCartMutation();
+
+  // Hàm thêm vào giỏ hàng
+  const handleAddToCart = async (product, qty) => {
+    dispatch(addToCart({ ...product, qty }));
+    toast.success("Added to cart!");
+
+    if (userInfo) {
+      // Định dạng cartItems để gửi lên backend
+      const formattedCartItems = [
+        ...cartItems,
+        { product: product._id, qty: Number(qty) },
+      ];
+
+      try {
+        await updateUserCart({ userId: userInfo._id, cartItems: formattedCartItems }).unwrap();
+        toast.success("Cart updated on server!");
+      } catch (error) {
+        toast.error(error?.data?.message || error.message);
+      }
+    }
+  };
+
+  // Phân trang: Lấy sản phẩm theo trang hiện tại
+  // (đã làm ở trên)
 
   // Xử lý chuyển trang
   const handlePageChange = (page) => {
@@ -196,14 +228,18 @@ const Shop = () => {
           <div className="p-3">
             <h2 className="h4 mb-2 ml-auto">{products?.length} Products</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-  {currentProducts.length === 0 ? (
-    <Loader />
-  ) : (
-    currentProducts.map((p) => (
-      <ProductCard key={p._id} p={p} />
-    ))
-  )}
-</div>
+              {currentProducts.length === 0 ? (
+                <Loader />
+              ) : (
+                currentProducts.map((p) => (
+                  <ProductCard 
+                    key={p._id} 
+                    p={p} 
+                    addToCartHandler={() => handleAddToCart(p, 1)} // Truyền handler
+                  />
+                ))
+              )}
+            </div>
 
             {/* Pagination */}
             <div className="flex justify-center mt-4 items-center">

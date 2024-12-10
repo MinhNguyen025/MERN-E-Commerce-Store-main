@@ -193,7 +193,7 @@ const getUserCart = asyncHandler(async (req, res) => {
   })));
 });
 
-// Cập nhật giỏ hàng của user
+// controllers/userController.js
 const updateUserCart = asyncHandler(async (req, res) => {
   const userId = req.params.id;
 
@@ -210,10 +210,9 @@ const updateUserCart = asyncHandler(async (req, res) => {
     throw new Error("User not found");
   }
 
-  // cartItems là một mảng chứa các object { product: productId, qty: number }
-  // Cập nhật user.cart bằng cartItems mới
+  // Đảm bảo rằng mỗi mục trong cartItems có trường 'product' thay vì '_id'
   user.cart = cartItems.map((item) => ({
-    product: item._id, // chú ý: frontend có thể đang dùng _id hoặc product._id, bạn cần thống nhất
+    product: item.product, // Sử dụng 'product' thay vì '_id'
     qty: item.qty,
   }));
 
@@ -221,6 +220,7 @@ const updateUserCart = asyncHandler(async (req, res) => {
 
   res.json({ message: "Cart updated successfully", cart: user.cart });
 });
+
 
 
 export {

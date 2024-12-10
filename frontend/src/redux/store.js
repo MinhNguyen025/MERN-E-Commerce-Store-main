@@ -6,12 +6,16 @@ import favoritesReducer from "../redux/features/favorites/favoriteSlice";
 import cartSliceReducer from "../redux/features/cart/cartSlice";
 import shopReducer from "../redux/features/shop/shopSlice";
 import { getFavoritesFromLocalStorage } from "../Utils/localStorage";
+import { categoryApiSlice } from "./api/categoryApiSlice"; // Import categoryApiSlice
+import { userApiSlice } from "./api/usersApiSlice";
 
 const initialFavorites = getFavoritesFromLocalStorage() || [];
 
 const store = configureStore({
   reducer: {
     [apiSlice.reducerPath]: apiSlice.reducer,
+    [categoryApiSlice.reducerPath]: categoryApiSlice.reducer, // Thêm reducer của categoryApiSlice
+    [userApiSlice.reducerPath]: userApiSlice.reducer,
     auth: authReducer,
     favorites: favoritesReducer,
     cart: cartSliceReducer,
@@ -23,7 +27,7 @@ const store = configureStore({
   },
 
   middleware: (getDefaultMiddleware) =>
-    getDefaultMiddleware().concat(apiSlice.middleware),
+    getDefaultMiddleware().concat(apiSlice.middleware, categoryApiSlice.middleware, userApiSlice.middleware),
   devTools: true,
 });
 

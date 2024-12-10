@@ -1,3 +1,4 @@
+// src/pages/Products/ProductDetails.js
 import { useState } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
@@ -6,6 +7,7 @@ import {
   useGetProductDetailsQuery,
   useCreateReviewMutation,
 } from "../../redux/api/productApiSlice";
+import { useUpdateUserCartMutation} from "../../redux/api/usersApiSlice"; // Import mutation
 import Loader from "../../components/Loader";
 import Message from "../../components/Message";
 import {
@@ -21,7 +23,6 @@ import Ratings from "./Ratings";
 import ProductTabs from "./ProductTabs";
 import { addToCart } from "../../redux/features/cart/cartSlice";
 import Breadcrumb from "../../components/Breadcrumb";
-
 
 const ProductDetails = () => {
   const { id: productId } = useParams();
@@ -40,9 +41,12 @@ const ProductDetails = () => {
   } = useGetProductDetailsQuery(productId);
 
   const { userInfo } = useSelector((state) => state.auth);
+  const { cartItems } = useSelector((state) => state.cart); // Lấy cartItems từ Redux
 
   const [createReview, { isLoading: loadingProductReview }] =
     useCreateReviewMutation();
+
+  const [updateUserCart] = useUpdateUserCartMutation(); // Sử dụng mutation
 
   const submitHandler = async (e) => {
     e.preventDefault();
@@ -60,14 +64,31 @@ const ProductDetails = () => {
     }
   };
 
-  const addToCartHandler = () => {
+  const addToCartHandler = async () => {
     dispatch(addToCart({ ...product, qty }));
+    toast.success("Added to cart!");
+
+    if (userInfo) {
+      // Định dạng cartItems để gửi lên backend
+      const formattedCartItems = [
+        ...cartItems,
+        { product: product._id, qty: Number(qty) },
+      ];
+
+      try {
+        await updateUserCart({ userId: userInfo._id, cartItems: formattedCartItems }).unwrap();
+        toast.success("Cart updated on server!");
+      } catch (error) {
+        toast.error(error?.data?.message || error.message);
+      }
+    }
+
     navigate("/cart");
   };
 
   return (
     <>
-    {product && <Breadcrumb productName={product.name} />}
+      {product && <Breadcrumb productName={product.name} />}
       {/* <div>
         <Link
           to="/"

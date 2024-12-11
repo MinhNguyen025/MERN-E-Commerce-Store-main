@@ -1,7 +1,7 @@
 import Order from "../models/orderModel.js";
 import Product from "../models/productModel.js";
 import sendEmail from "../utils/emailService.js"; // Import hàm gửi email
-
+import User from "../models/userModel.js";
 
 // Utility Function
 function calcPrices(orderItems) {
@@ -32,15 +32,21 @@ const createOrder = async (req, res) => {
   try {
     const { orderItems, shippingAddress, paymentMethod } = req.body;
 
-    if (orderItems && orderItems.length === 0) {
+    if (!orderItems || orderItems.length === 0) {
       res.status(400);
       throw new Error("No order items");
     }
 
-    // Sửa ở đây: Sử dụng 'product' thay vì '_id'
+    // Tìm các sản phẩm từ database
     const itemsFromDB = await Product.find({
       _id: { $in: orderItems.map((x) => x.product) },
     });
+
+    // Kiểm tra xem tất cả các sản phẩm có tồn tại không
+    if (itemsFromDB.length !== orderItems.length) {
+      res.status(400);
+      throw new Error("Một số sản phẩm không tồn tại trong database.");
+    }
 
     // Khớp thông tin sản phẩm giữa client và database
     const dbOrderItems = orderItems.map((itemFromClient) => {
@@ -54,17 +60,16 @@ const createOrder = async (req, res) => {
       }
 
       return {
-        name: matchingItemFromDB.name, // Đảm bảo lấy tên từ DB
+        name: matchingItemFromDB.name,
         qty: itemFromClient.qty,
         image: matchingItemFromDB.image,
         price: matchingItemFromDB.price,
-        product: itemFromClient.product, // Đảm bảo 'product' là ID sản phẩm
+        product: itemFromClient.product,
       };
     });
 
     // Tính toán giá trị đơn hàng
-    const { itemsPrice, taxPrice, shippingPrice, totalPrice } =
-      calcPrices(dbOrderItems);
+    const { itemsPrice, taxPrice, shippingPrice, totalPrice } = calcPrices(dbOrderItems);
 
     // Lưu đơn hàng vào cơ sở dữ liệu
     const order = new Order({
@@ -79,9 +84,21 @@ const createOrder = async (req, res) => {
     });
 
     const createdOrder = await order.save();
+    console.log("Đơn hàng được tạo:", createdOrder);
+
+    // **Xác minh ID user trước khi cập nhật giỏ hàng**
+    console.log("User ID from token:", req.user._id);
+
+    // **Xóa giỏ hàng của user sau khi tạo đơn hàng**
+    const currentUser = await User.findById(req.user._id);
+    if (currentUser) {
+      currentUser.cart = []; // Đặt giỏ hàng thành rỗng
+      await currentUser.save(); // Lưu thay đổi
+      console.log("Giỏ hàng đã được xóa cho user:", currentUser._id);
+      console.log("Giỏ hàng sau khi lưu:", currentUser.cart); // Log giỏ hàng sau khi lưu
+    }
 
     // Gửi email xác nhận đơn hàng
-    const user = req.user;
     const orderItemsForEmail = dbOrderItems.map((item) => ({
       name: item.name,
       qty: item.qty,
@@ -90,7 +107,7 @@ const createOrder = async (req, res) => {
     }));
 
     const emailData = {
-      username: user.username,
+      username: req.user.username,
       orderId: createdOrder._id,
       orderDate: new Date().toLocaleDateString(),
       shippingAddress: {
@@ -107,20 +124,23 @@ const createOrder = async (req, res) => {
 
     try {
       await sendEmail({
-        to: user.email,
+        to: req.user.email,
         subject: "Confirmation of Your Order",
-        template: "emails/orderConfirmation", // Đường dẫn tới template
-        context: emailData, // Dữ liệu truyền vào template
+        template: "emails/orderConfirmation",
+        context: emailData,
       });
+      console.log("Email sent successfully.");
     } catch (emailError) {
       console.error("Error sending email:", emailError);
     }
 
     res.status(201).json(createdOrder);
   } catch (error) {
+    console.error("Lỗi khi tạo đơn hàng:", error.message);
     res.status(500).json({ error: error.message });
   }
 };
+
 
 const getAllOrders = async (req, res) => {
   try {

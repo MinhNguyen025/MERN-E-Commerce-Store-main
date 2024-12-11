@@ -10,7 +10,7 @@ import { clearCartItems } from "../../redux/features/cart/cartSlice";
 
 const PlaceOrder = () => {
   const navigate = useNavigate();
-
+  const dispatch = useDispatch();
   const cart = useSelector((state) => state.cart);
 
   const [createOrder, { isLoading, error }] = useCreateOrderMutation();
@@ -20,8 +20,6 @@ const PlaceOrder = () => {
       navigate("/shipping");
     }
   }, [cart.paymentMethod, cart.shippingAddress.address, navigate]);
-
-  const dispatch = useDispatch();
 
   const placeOrderHandler = async () => {
     try {
@@ -36,10 +34,12 @@ const PlaceOrder = () => {
       }).unwrap();
 
       dispatch(clearCartItems());
+      console.log("Cart has been cleared on frontend and backend.");
       toast.success("Order placed successfully! A confirmation email has been sent to your inbox.");
-      navigate(`/order/${res._id}`);
+      window.location.href = `/order/${res._id}`; // Sử dụng backticks
     } catch (error) {
-      toast.error(error);
+      console.error("Error placing order:", error);
+      toast.error(error?.data?.message || error.message || "Failed to place order."); // Hiển thị thông báo lỗi cụ thể
     }
   };
 
@@ -111,7 +111,7 @@ const PlaceOrder = () => {
               </li>
             </ul>
 
-            {error && <Message variant="danger">{error.data.message}</Message>}
+            {error && <Message variant="danger">{error?.data?.message || error.error || "Failed to place order."}</Message>} {/* Hiển thị lỗi cụ thể */}
 
             <div>
               <h2 className="text-2xl font-semibold mb-4">Shipping</h2>
@@ -131,7 +131,7 @@ const PlaceOrder = () => {
           <button
             type="button"
             className="bg-red-500 text-white py-2 px-4 rounded-full text-lg w-full mt-4"
-            disabled={cart.cartItems === 0}
+            disabled={cart.cartItems.length === 0} // Kiểm tra độ dài mảng
             onClick={placeOrderHandler}
           >
             Place Order

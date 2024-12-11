@@ -13,6 +13,8 @@ const userSchema = mongoose.Schema({
       qty:     { type: Number, required: true, default: 1 },
     }
   ],
-}, { timestamps: true });
+}, { timestamps: true,
+     versionKey: false,
+ });
 
 export default mongoose.model('User', userSchema);

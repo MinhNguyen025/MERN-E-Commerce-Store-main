@@ -42,10 +42,19 @@ const cartSlice = createSlice({
 
     clearCartItems: (state) => {
       state.cartItems = [];
-      localStorage.setItem("cart", JSON.stringify(state));
+      // state.shippingAddress = {};
+      state.paymentMethod = "PayPal";
+      return updateCart(state);
     },
 
-    resetCart: (state) => (state = initialState),
+    resetCart: (state) => {
+      state.cartItems = [];
+      state.shippingAddress = {};
+      state.paymentMethod = "PayPal";
+      localStorage.removeItem("cartItems");
+      localStorage.removeItem("shippingAddress");
+      localStorage.removeItem("paymentMethod");
+    },
 
     setCartItemsFromDB: (state, action) => {
       // action.payload là mảng cartItems từ backend đã được map

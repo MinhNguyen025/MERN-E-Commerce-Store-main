@@ -1,3 +1,5 @@
+// File: src/redux/api/usersApiSlice.js
+
 import { apiSlice } from "./apiSlice";
 import { USERS_URL } from "../constants";
 
@@ -68,7 +70,7 @@ export const userApiSlice = apiSlice.injectEndpoints({
       query: ({ userId, cartItems }) => ({
         url: `${USERS_URL}/${userId}/cart`,
         method: "POST",
-        body: { cartItems },
+        body: { cartItems }, // 'cartItems' có cấu trúc [{ product: ID, qty: number }, ...]
       }),
       invalidatesTags: ["User"],
     }),

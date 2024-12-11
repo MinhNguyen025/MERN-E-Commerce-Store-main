@@ -1,3 +1,5 @@
+// File: routes/userRoutes.js
+
 import express from "express";
 import {
   createUser,
@@ -9,9 +11,10 @@ import {
   deleteUserById,
   getUserById,
   updateUserById,
+  getUserCart,
+  updateUserCart,
 } from "../controllers/userController.js";
 import { authenticate, authorizeAdmin } from "../middlewares/authMiddleware.js";
-import { getUserCart, updateUserCart } from "../controllers/userController.js";
 
 const router = express.Router();
 

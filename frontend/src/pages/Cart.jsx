@@ -1,48 +1,80 @@
+// File: src/pages/Cart.jsx
+
 import { Link, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { FaTrash } from "react-icons/fa";
-import { addToCart, removeFromCart } from "../redux/features/cart/cartSlice";
+import { addToCart, removeFromCart, setCartItemsFromDB } from "../redux/features/cart/cartSlice";
 import emptyCartImage from "../images/empty-cart.png";
-import { useUpdateUserCartMutation } from "../redux/api/usersApiSlice";
+import { useUpdateUserCartMutation, useGetUserCartQuery } from "../redux/api/usersApiSlice";
 import store from "../redux/store";
+import { useEffect } from "react";
+import { toast } from "react-toastify";
 
 const Cart = () => {
-
   const { userInfo } = useSelector((state) => state.auth);
   const [updateUserCart] = useUpdateUserCartMutation();
+  const { data: fetchedCartData, refetch } = useGetUserCartQuery(userInfo?._id, {
+    skip: !userInfo,
+  });
 
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
-  const cart = useSelector((state) => state.cart);
   const { cartItems } = useSelector(state => state.cart);
 
-  const addToCartHandler = async (product, qty) => {
-    dispatch(addToCart({ ...product, qty }));
-  
-    if (userInfo) {
-      const { cartItems } = store.getState().cart; 
-      // Chuyển đổi cartItems để sử dụng 'product' thay vì '_id'
-      const formattedCartItems = cartItems.map(item => ({
-        product: item._id,
-        qty: item.qty,
-      }));
-      await updateUserCart({ userId: userInfo._id, cartItems: formattedCartItems });
+  // Cập nhật Redux store khi fetch cart từ backend
+  useEffect(() => {
+    if (fetchedCartData) {
+      dispatch(setCartItemsFromDB(fetchedCartData));
     }
+  }, [fetchedCartData, dispatch]);
+
+  // Đồng bộ cartItems với backend mỗi khi cartItems thay đổi
+  useEffect(() => {
+    const syncCartWithBackend = async () => {
+      if (userInfo) {
+        try {
+          // Chỉ gửi 'product' và 'qty' cho backend
+          const sanitizedCartItems = cartItems.map(item => ({
+            product: item.product,
+            qty: item.qty,
+          }));
+          console.log("Sending sanitizedCartItems to backend:", sanitizedCartItems); // Thêm log để kiểm tra
+          await updateUserCart({ userId: userInfo._id, cartItems: sanitizedCartItems }).unwrap();
+          // Refetch để đảm bảo dữ liệu đồng nhất
+          await refetch();
+        } catch (err) {
+          console.error('Error updating cart:', err);
+          toast.error('Failed to update cart. Please try again.');
+        }
+      }
+    };
+
+    syncCartWithBackend();
+  }, [cartItems, userInfo, updateUserCart, refetch]);
+
+  const addToCartHandler = (item, qty) => {
+    // Dispatch addToCart với đầy đủ thông tin sản phẩm
+    dispatch(addToCart({ 
+      product: item.product, 
+      qty,
+      name: item.name,
+      price: item.price,
+      image: item.image,
+      countInStock: item.countInStock,
+    }));
+    toast.success("Item added successfully", {
+      position: toast.POSITION.TOP_RIGHT,
+      autoClose: 2000,
+    });
   };
-  
-  const removeFromCartHandler = async (id) => {
+
+  const removeFromCartHandler = (id) => {
     dispatch(removeFromCart(id));
-  
-    if (userInfo) {
-      const { cartItems } = store.getState().cart; 
-      // Chuyển đổi cartItems để sử dụng 'product' thay vì '_id'
-      const formattedCartItems = cartItems.map(item => ({
-        product: item._id,
-        qty: item.qty,
-      }));
-      await updateUserCart({ userId: userInfo._id, cartItems: formattedCartItems });
-    }
+    toast.success("Item removed successfully", {
+      position: toast.POSITION.TOP_RIGHT,
+      autoClose: 2000,
+    });
   };
 
   const checkoutHandler = () => {
@@ -55,7 +87,7 @@ const Cart = () => {
 
   return (
     <>
-      <div className="container flex justify-around items-start flex wrap mx-auto mt-8">
+      <div className="container flex justify-around items-start flex-wrap mx-auto mt-8">
         {cartItems.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-screen text-center">
             <img
@@ -80,7 +112,7 @@ const Cart = () => {
               <h1 className="text-2xl font-semibold mb-4">Shopping Cart</h1>
 
               {cartItems.map((item) => (
-                <div key={item._id} className="flex items-enter mb-[1rem] pb-2">
+                <div key={item.product} className="flex items-center mb-[1rem] pb-2">
                   <div className="w-[5rem] h-[5rem]">
                     <img
                       src={item.image}
@@ -90,7 +122,7 @@ const Cart = () => {
                   </div>
 
                   <div className="flex-1 ml-4">
-                    <Link to={`/product/${item._id}`} className="text-red-500">
+                    <Link to={`/product/${item.product}`} className="text-red-500">
                       {item.name}
                     </Link>
 
@@ -119,7 +151,7 @@ const Cart = () => {
                   <div>
                     <button
                       className="text-red-500 mr-[5rem]"
-                      onClick={() => removeFromCartHandler(item._id)}
+                      onClick={() => removeFromCartHandler(item.product)}
                     >
                       <FaTrash className="ml-[1rem] mt-[.5rem]" />
                     </button>

@@ -1,3 +1,5 @@
+// File: src/pages/Auth/Login.jsx
+
 import React, { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
@@ -6,6 +8,7 @@ import { useLoginMutation } from "../../redux/api/usersApiSlice";
 import { setCredentials } from "../../redux/features/auth/authSlice";
 import { toast } from "react-toastify";
 import { setCartItemsFromDB } from "../../redux/features/cart/cartSlice";
+import { useGetUserCartQuery } from "../../redux/api/usersApiSlice";
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -20,24 +23,22 @@ const Login = () => {
   const sp = new URLSearchParams(search);
   const redirect = sp.get("redirect") || "/";
 
+  // Hook để lấy giỏ hàng của user
+  const { data: cartData, refetch } = useGetUserCartQuery(userInfo?._id, {
+    skip: !userInfo,
+  });
+
   const handleLoginSuccess = async (user) => {
     // user chứa thông tin userInfo (_id, username, email...)
     const userId = user._id;
     try {
-      const response = await fetch(`/api/users/${userId}/cart`, {
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        credentials: 'include'
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to fetch cart');
+      // Gọi API để lấy giỏ hàng từ backend
+      await refetch();
+      
+      if (cartData) {
+        // Cập nhật cart vào Redux với cấu trúc đầy đủ
+        dispatch(setCartItemsFromDB(cartData));
       }
-
-      const cartData = await response.json();
-      // Cập nhật cart vào Redux
-      dispatch(setCartItemsFromDB(cartData));
     } catch (err) {
       console.error('Error fetching cart:', err);
     }
@@ -81,6 +82,7 @@ const Login = () => {
                 placeholder="Enter email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
+                required
               />
             </div>
 
@@ -98,6 +100,7 @@ const Login = () => {
                 placeholder="Enter password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
+                required
               />
             </div>
 

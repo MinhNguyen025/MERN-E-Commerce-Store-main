@@ -1,4 +1,5 @@
 import User from "../models/userModel.js";
+import Product from "../models/productModel.js";
 import asyncHandler from "../middlewares/asyncHandler.js";
 import bcrypt from "bcryptjs";
 import createToken from "../utils/createToken.js";
@@ -63,7 +64,7 @@ const loginUser = asyncHandler(async (req, res) => {
 
 const logoutCurrentUser = asyncHandler(async (req, res) => {
   res.cookie("jwt", "", {
-    httyOnly: true,
+    httpOnly: true,
     expires: new Date(0),
   });
 
@@ -193,7 +194,8 @@ const getUserCart = asyncHandler(async (req, res) => {
   })));
 });
 
-// controllers/userController.js
+// File: controllers/userController.js
+
 const updateUserCart = asyncHandler(async (req, res) => {
   const userId = req.params.id;
 
@@ -204,23 +206,56 @@ const updateUserCart = asyncHandler(async (req, res) => {
 
   const { cartItems } = req.body;
 
+  console.log("Received cartItems:", cartItems); // Thêm log
+
   const user = await User.findById(userId);
+
   if (!user) {
     res.status(404);
     throw new Error("User not found");
   }
 
-  // Đảm bảo rằng mỗi mục trong cartItems có trường 'product' thay vì '_id'
-  user.cart = cartItems.map((item) => ({
-    product: item.product, // Sử dụng 'product' thay vì '_id'
+  // Kiểm tra từng sản phẩm trong cartItems để đảm bảo sản phẩm tồn tại
+  for (let item of cartItems) {
+    const productExists = await Product.findById(item.product);
+    if (!productExists) {
+      res.status(404);
+      throw new Error(`Product with ID ${item.product} not found`);
+    }
+  }
+
+  // Chuẩn bị dữ liệu để cập nhật
+  const updatedCart = cartItems.map(item => ({
+    product: item.product,
     qty: item.qty,
   }));
 
-  await user.save();
+  console.log("Updating cart with:", updatedCart); // Thêm log
 
-  res.json({ message: "Cart updated successfully", cart: user.cart });
+  // Sử dụng findByIdAndUpdate để cập nhật giỏ hàng một cách nguyên tử
+  const updatedUser = await User.findByIdAndUpdate(
+    userId,
+    { cart: updatedCart },
+    { new: true } // Trả về tài liệu mới sau khi cập nhật
+  ).populate('cart.product', 'name price image countInStock');
+
+  if (!updatedUser) {
+    res.status(404);
+    throw new Error("User not found after update");
+  }
+
+  console.log("Updated user cart:", updatedUser.cart); // Thêm log
+
+  // Trả về giỏ hàng đã được populate đầy đủ thông tin
+  res.json(updatedUser.cart.map(item => ({
+    _id: item.product._id,
+    name: item.product.name,
+    price: item.product.price,
+    image: item.product.image,
+    qty: item.qty,
+    countInStock: item.product.countInStock
+  })));
 });
-
 
 
 export {

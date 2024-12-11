@@ -1,10 +1,31 @@
-// src/components/Products/ProductCard.js
+// File: src/components/Products/ProductCard.jsx
+
 import { Link } from "react-router-dom";
 import { AiOutlineShoppingCart } from "react-icons/ai";
+import { useDispatch } from "react-redux";
+import { addToCart } from "../../redux/features/cart/cartSlice";
 import { toast } from "react-toastify";
 import HeartIcon from "./HeartIcon";
 
-const ProductCard = ({ p, addToCartHandler }) => {
+const ProductCard = ({ p }) => {
+  const dispatch = useDispatch();
+
+  const addToCartHandler = (product, qty) => {
+    // Chỉ gửi các trường cần thiết để đồng nhất với cartSlice
+    dispatch(addToCart({
+      product: product._id,
+      qty,
+      name: product.name,
+      price: product.price,
+      image: product.image,
+      countInStock: product.countInStock,
+    }));
+    toast.success("Item added successfully", {
+      position: toast.POSITION.TOP_RIGHT,
+      autoClose: 2000,
+    });
+  };
+
   return (
     <div className="max-w-sm relative bg-[#1A1A1A] rounded-lg shadow dark:bg-gray-800 dark:border-gray-700">
       <section className="relative">
@@ -63,7 +84,7 @@ const ProductCard = ({ p, addToCartHandler }) => {
 
           <button
             className="p-2 rounded-full"
-            onClick={addToCartHandler}
+            onClick={() => addToCartHandler(p, 1)}
           >
             <AiOutlineShoppingCart size={25} />
           </button>

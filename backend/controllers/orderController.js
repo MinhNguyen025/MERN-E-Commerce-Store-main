@@ -37,27 +37,28 @@ const createOrder = async (req, res) => {
       throw new Error("No order items");
     }
 
-    // Lấy thông tin sản phẩm từ cơ sở dữ liệu
+    // Sửa ở đây: Sử dụng 'product' thay vì '_id'
     const itemsFromDB = await Product.find({
-      _id: { $in: orderItems.map((x) => x._id) },
+      _id: { $in: orderItems.map((x) => x.product) },
     });
 
     // Khớp thông tin sản phẩm giữa client và database
     const dbOrderItems = orderItems.map((itemFromClient) => {
       const matchingItemFromDB = itemsFromDB.find(
-        (itemFromDB) => itemFromDB._id.toString() === itemFromClient._id
+        (itemFromDB) => itemFromDB._id.toString() === itemFromClient.product
       );
 
       if (!matchingItemFromDB) {
         res.status(404);
-        throw new Error(`Product not found: ${itemFromClient._id}`);
+        throw new Error(`Product not found: ${itemFromClient.product}`);
       }
 
       return {
-        ...itemFromClient,
-        product: itemFromClient._id,
+        name: matchingItemFromDB.name, // Đảm bảo lấy tên từ DB
+        qty: itemFromClient.qty,
+        image: matchingItemFromDB.image,
         price: matchingItemFromDB.price,
-        _id: undefined,
+        product: itemFromClient.product, // Đảm bảo 'product' là ID sản phẩm
       };
     });
 
@@ -97,12 +98,7 @@ const createOrder = async (req, res) => {
         city: shippingAddress.city,
         country: shippingAddress.country,
       },
-      orderItems: dbOrderItems.map((item) => ({
-        name: item.name,
-        qty: item.qty,
-        price: item.price.toFixed(2),
-        total: (item.qty * item.price).toFixed(2),
-      })),
+      orderItems: orderItemsForEmail,
       subtotal: itemsPrice,
       tax: taxPrice,
       shipping: shippingPrice,

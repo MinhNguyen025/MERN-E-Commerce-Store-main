@@ -34,7 +34,6 @@ const PlaceOrder = () => {
       }).unwrap();
 
       dispatch(clearCartItems());
-      console.log("Cart has been cleared on frontend and backend.");
       toast.success("Order placed successfully! A confirmation email has been sent to your inbox.");
       window.location.href = `/order/${res._id}`; // Sử dụng backticks
     } catch (error) {

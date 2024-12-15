@@ -1,5 +1,3 @@
-// File: models/userModel.js
-
 import mongoose from 'mongoose';
 
 const userSchema = mongoose.Schema({

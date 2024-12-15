@@ -63,7 +63,7 @@ const OrderList = () => {
               placeholder="Search by Order ID..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="border border-gray-300 p-2 w-full rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="border border-gray-300 p-2 w-80 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
             <button
               type="submit"
@@ -152,55 +152,75 @@ const OrderList = () => {
           </table>
 
           {/* Pagination */}
-          <div className="flex justify-center items-center mt-4 gap-2">
+          <div className="flex justify-center mt-4 items-center pt-40">
+            {/* First Page */}
             <button
               onClick={() => handlePageChange(1)}
               disabled={page === 1}
-              className={`p-2 px-4 rounded border border-gray-300 ${
-                page === 1 ? "bg-gray-300 cursor-not-allowed" : "hover:bg-gray-200"
+              className={`px-4 py-2 mx-1 border rounded ${
+                page === 1
+                  ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                  : "bg-gray-200 text-gray-700 border-gray-300 hover:bg-red-100 hover:border-red-400"
               }`}
             >
               «
             </button>
+
+            {/* Previous Page */}
             <button
               onClick={() => handlePageChange(page - 1)}
               disabled={page === 1}
-              className={`p-2 px-4 rounded border border-gray-300 ${
-                page === 1 ? "bg-gray-300 cursor-not-allowed" : "hover:bg-gray-200"
+              className={`px-4 py-2 mx-1 border rounded ${
+                page === 1
+                  ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                  : "bg-gray-200 text-gray-700 border-gray-300 hover:bg-red-100 hover:border-red-400"
               }`}
             >
               ‹
             </button>
-            {[...Array(totalPages).keys()].map((index) => (
+
+            {/* Page Numbers */}
+            {Array.from({ length: totalPages }, (_, i) => i + 1).map((pageNumber) => (
               <button
-                key={index}
-                onClick={() => handlePageChange(index + 1)}
-                className={`p-2 px-4 rounded border border-gray-300 ${
-                  page === index + 1 ? "bg-red-500 text-white" : "hover:bg-gray-200"
+                key={pageNumber}
+                onClick={() => handlePageChange(pageNumber)}
+                className={`px-4 py-2 mx-1 border rounded ${
+                  pageNumber === page
+                    ? "bg-red-600 text-white border-red-600"
+                    : "bg-gray-200 text-gray-700 border-gray-300 hover:bg-red-100 hover:border-red-400"
                 }`}
               >
-                {index + 1}
+                {pageNumber}
               </button>
             ))}
+
+            {/* Next Page */}
             <button
               onClick={() => handlePageChange(page + 1)}
               disabled={page === totalPages}
-              className={`p-2 px-4 rounded border border-gray-300 ${
-                page === totalPages ? "bg-gray-300 cursor-not-allowed" : "hover:bg-gray-200"
+              className={`px-4 py-2 mx-1 border rounded ${
+                page === totalPages
+                  ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                  : "bg-gray-200 text-gray-700 border-gray-300 hover:bg-red-100 hover:border-red-400"
               }`}
             >
               ›
             </button>
+
+            {/* Last Page */}
             <button
               onClick={() => handlePageChange(totalPages)}
               disabled={page === totalPages}
-              className={`p-2 px-4 rounded border border-gray-300 ${
-                page === totalPages ? "bg-gray-300 cursor-not-allowed" : "hover:bg-gray-200"
+              className={`px-4 py-2 mx-1 border rounded ${
+                page === totalPages
+                  ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                  : "bg-gray-200 text-gray-700 border-gray-300 hover:bg-red-100 hover:border-red-400"
               }`}
             >
               »
             </button>
           </div>
+
         </div>
       )}
     </>

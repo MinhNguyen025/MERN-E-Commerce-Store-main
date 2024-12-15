@@ -65,8 +65,15 @@ const ProductDetails = () => {
   };
 
   const addToCartHandler = async () => {
+    if (!userInfo) {
+      toast.warn("Please login to add a product to cart.");
+      navigate("/login");
+      return;
+    }
+ 
     dispatch(addToCart({ ...product, qty }));
     toast.success("Added to cart!");
+
 
     if (userInfo) {
       // Định dạng cartItems để gửi lên backend

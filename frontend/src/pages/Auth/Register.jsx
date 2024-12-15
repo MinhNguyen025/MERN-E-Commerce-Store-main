@@ -37,12 +37,14 @@ const Register = () => {
     } else {
       try {
         const res = await register({ username, email, password }).unwrap();
-        dispatch(setCredentials({ ...res }));
-        navigate("/login"); // Chuyển hướng tới trang login sau khi đăng ký thành công
+        console.log("Register response:", res); // Thêm log để kiểm tra
+        // Không dispatch setCredentials vì bạn không muốn tự động đăng nhập
         toast.success("User successfully registered");
+        navigate(redirect ? `/login?redirect=${redirect}` : "/login"); // Chuyển hướng tới trang login
       } catch (err) {
-        console.log(err);
-        toast.error(err.data.message);
+        console.log("Register error:", err);
+        const errorMessage = err?.data?.message || "Registration failed";
+        toast.error(errorMessage);
       }
     }
   };
@@ -68,6 +70,7 @@ const Register = () => {
               placeholder="Enter name"
               value={username}
               onChange={(e) => setName(e.target.value)}
+              required 
             />
           </div>
 
@@ -85,6 +88,7 @@ const Register = () => {
               placeholder="Enter email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
+              required 
             />
           </div>
 
@@ -102,6 +106,7 @@ const Register = () => {
               placeholder="Enter password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
+              required 
             />
           </div>
 
@@ -119,18 +124,22 @@ const Register = () => {
               placeholder="Confirm password"
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
+              required 
             />
           </div>
 
           <button
             disabled={isLoading}
             type="submit"
-            className="bg-red-500 text-white px-4 py-2 rounded cursor-pointer my-[1rem]"
+            className="bg-red-500 text-white px-4 py-2 rounded cursor-pointer my-[1rem] flex items-center justify-center"
           >
+            {/* Loader hiển thị khi isLoading là true */}
+            {isLoading && (
+              <span className="animate-spin rounded-full h-4 w-4 border-t-2 border-white border-opacity-50 mr-2"></span>
+            )}
             {isLoading ? "Registering..." : "Register"}
           </button>
 
-          {isLoading && <Loader />}
         </form>
 
         <div className="mt-4">

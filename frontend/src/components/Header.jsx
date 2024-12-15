@@ -10,7 +10,7 @@ const Header = () => {
   const { userInfo } = useSelector((state) => state.auth); // Lấy thông tin user từ Redux
 
   return (
-    <header className="bg-black-900 text-white py-4 px-6 shadow-md sticky top-0 z-50">
+    <header className="bg-black text-white py-4 px-6 shadow-md sticky top-0 z-50">
       <div className="container mx-auto flex items-center justify-between">
         {/* Logo */}
         <Link to="/" className="flex items-center space-x-2 ml-20">
@@ -20,7 +20,7 @@ const Header = () => {
 
         {/* Favorites and Cart */}
         {!userInfo?.isAdmin && ( // Chỉ hiển thị khi không phải admin
-          <div className="flex items-center space-x-6">
+          <div className="flex items-center space-x-6 mr-60">
             {/* Favorites */}
             <Link to="/favorite" className="relative flex items-center">
               <FaHeart size={24} />

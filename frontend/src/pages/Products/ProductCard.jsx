@@ -1,25 +1,34 @@
 // File: src/components/Products/ProductCard.jsx
 
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { AiOutlineShoppingCart } from "react-icons/ai";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { addToCart } from "../../redux/features/cart/cartSlice";
 import { toast } from "react-toastify";
 import HeartIcon from "./HeartIcon";
 
 const ProductCard = ({ p }) => {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const { userInfo } = useSelector((state) => state.auth);
 
   const addToCartHandler = (product, qty) => {
     // Chỉ gửi các trường cần thiết để đồng nhất với cartSlice
-    dispatch(addToCart({
-      product: product._id,
-      qty,
-      name: product.name,
-      price: product.price,
-      image: product.image,
-      countInStock: product.countInStock,
-    }));
+    if (!userInfo) {
+      toast.warn("Please login to add a product to cart.");
+      navigate("/login");
+      return;
+    }
+    dispatch(
+      addToCart({
+        product: product._id,
+        qty,
+        name: product.name,
+        price: product.price,
+        image: product.image,
+        countInStock: product.countInStock,
+      })
+    );
     toast.success("Item added successfully", {
       position: toast.POSITION.TOP_RIGHT,
       autoClose: 2000,
@@ -27,7 +36,7 @@ const ProductCard = ({ p }) => {
   };
 
   return (
-    <div className="max-w-sm relative bg-[#1A1A1A] rounded-lg shadow dark:bg-gray-800 dark:border-gray-700">
+    <div className="max-w-sm relative bg-[#1A1A1A] rounded-lg shadow dark:bg-gray-800 dark:border-gray-700 flex flex-col">
       <section className="relative">
         <Link to={`/product/${p._id}`}>
           <span className="absolute bottom-3 right-3 bg-red-100 text-red-800 text-sm font-medium mr-2 px-2.5 py-0.5 rounded-full dark:bg-red-900 dark:text-red-300">
@@ -43,23 +52,25 @@ const ProductCard = ({ p }) => {
         <HeartIcon product={p} />
       </section>
 
-      <div className="p-5">
-        <div className="flex justify-between">
-          <h5 className="mb-2 text-xl text-white dark:text-white">{p?.name}</h5>
+      <div className="p-5 flex flex-col justify-between flex-grow">
+        <div>
+          <div className="flex justify-between">
+            <h5 className="mb-2 text-xl text-white dark:text-white">{p?.name}</h5>
 
-          <p className="text-black font-semibold text-red-500">
-            {p?.price?.toLocaleString("en-US", {
-              style: "currency",
-              currency: "USD",
-            })}
+            <p className="text-black font-semibold text-red-500">
+              {p?.price?.toLocaleString("en-US", {
+                style: "currency",
+                currency: "USD",
+              })}
+            </p>
+          </div>
+
+          <p className="mb-3 font-normal text-[#CFCFCF]">
+            {p?.description?.substring(0, 60)} ...
           </p>
         </div>
 
-        <p className="mb-3 font-normal text-[#CFCFCF]">
-          {p?.description?.substring(0, 60)} ...
-        </p>
-
-        <section className="flex justify-between items-center">
+        <section className="flex justify-between items-center mt-4">
           <Link
             to={`/product/${p._id}`}
             className="inline-flex items-center px-3 py-2 text-sm font-medium text-center text-white bg-red-700 rounded-lg hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-800"

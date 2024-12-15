@@ -1,5 +1,6 @@
 // src/pages/Shop.js
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { useGetFilteredProductsQuery } from "../redux/api/productApiSlice";
 import { useFetchCategoriesQuery } from "../redux/api/categoryApiSlice";
@@ -16,6 +17,7 @@ import { toast } from "react-toastify";
 
 const Shop = () => {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const { categories, products, checked, radio } = useSelector(
     (state) => state.shop
   );
@@ -60,10 +62,9 @@ const Shop = () => {
         );
       }
 
-      // Áp dụng bộ lọc giá
       if (priceFilter) {
-        filteredProducts = filteredProducts.filter(
-          (product) => product.price === parseInt(priceFilter, 10)
+        filteredProducts = filteredProducts.filter((product) =>
+          product.price.toString().includes(priceFilter)
         );
       }
 
@@ -105,6 +106,13 @@ const Shop = () => {
 
   // Hàm thêm vào giỏ hàng
   const handleAddToCart = async (product, qty) => {
+
+    if (!userInfo) {
+      toast.warn("Please login to add a product to cart.");
+      navigate("/login");
+      return;
+    }
+
     dispatch(addToCart({ ...product, qty }));
     toast.success("Added to cart!");
 
@@ -123,9 +131,6 @@ const Shop = () => {
       }
     }
   };
-
-  // Phân trang: Lấy sản phẩm theo trang hiện tại
-  // (đã làm ở trên)
 
   // Xử lý chuyển trang
   const handlePageChange = (page) => {

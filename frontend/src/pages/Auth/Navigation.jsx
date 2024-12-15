@@ -1,5 +1,4 @@
-import { useState } from "react";
-import { useRef } from "react";
+import { useState, useEffect, useRef } from "react";
 import { FaSignInAlt, FaUserPlus } from "react-icons/fa";
 import {
   AiOutlineHome,
@@ -58,13 +57,18 @@ const Navigation = () => {
   const logoutHandler = async () => {
     try {
       await logoutApiCall().unwrap();
-      dispatch(clearCartItems()); // Clear cart items
+      dispatch(clearCartItems()); 
       dispatch(logout()); // Clear user authentication
-      navigate("/login"); // Navigate to login page
+      setDropdownOpen(false);
+      navigate("/login"); 
     } catch (error) {
       console.error(error);
     }
   };
+
+  useEffect(() => {
+    setDropdownOpen(false);
+  }, [userInfo]);
   
   return (
     <div

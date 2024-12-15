@@ -13,7 +13,7 @@ const AdminMenu = () => {
     <>
       {/* Nút bật/tắt menu */}
       <button
-        className="fixed top-5 right-5 bg-[#151515] p-2 rounded-lg z-50"
+        className="fixed top-5 right-5 bg-[#151515] p-2 rounded-lg z-50 mt-20"
         onClick={toggleMenu}
       >
         {isMenuOpen ? (
@@ -29,7 +29,7 @@ const AdminMenu = () => {
 
       {/* Menu */}
       {isMenuOpen && (
-        <section className="fixed top-16 right-5 bg-[#151515] p-4 w-64 rounded-lg shadow-lg z-40">
+        <section className="fixed top-16 right-5 bg-[#151515] p-5 w-64 rounded-lg shadow-lg z-40">
           <ul className="list-none mt-2">
             <li>
               <NavLink

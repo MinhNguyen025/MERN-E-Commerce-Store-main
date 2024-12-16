@@ -5,6 +5,7 @@ import "react-toastify/dist/ReactToastify.css";
 import Footer from "./components/Footer";
 import Header from "./components/Header";
 import { Outlet } from "react-router-dom";
+import Breadcrumb from "./components/Breadcrumb"; 
 
 const App = () => {
   return (
@@ -13,6 +14,7 @@ const App = () => {
       <ToastContainer />
       <Navigation />
       <main className="flex-grow px-6">
+        <Breadcrumb />
         <Outlet />
       </main>
       <Footer /> 

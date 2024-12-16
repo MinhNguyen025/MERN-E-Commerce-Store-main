@@ -2,60 +2,62 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { useGetFilteredProductsQuery } from "../redux/api/productApiSlice";
+import { useGetFilteredProductsQuery, useGetBrandsQuery } from "../redux/api/productApiSlice";
 import { useFetchCategoriesQuery } from "../redux/api/categoryApiSlice";
 import {
   setCategories,
   setProducts,
   setChecked,
+  setCheckedBrands,
 } from "../redux/features/shop/shopSlice";
 import Loader from "../components/Loader";
 import ProductCard from "./Products/ProductCard";
-import { useUpdateUserCartMutation } from "../redux/api/usersApiSlice"; // Import mutation
+import { useUpdateUserCartMutation } from "../redux/api/usersApiSlice";
 import { addToCart } from "../redux/features/cart/cartSlice";
 import { toast } from "react-toastify";
 
 const Shop = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { categories, products, checked, radio } = useSelector(
-    (state) => state.shop
-  );
+  const { categories, products, checked, radio, checkedBrands } = useSelector((state) => state.shop);
   const { userInfo } = useSelector((state) => state.auth);
-  const { cartItems } = useSelector((state) => state.cart); // Lấy cartItems từ Redux
+  const { cartItems } = useSelector((state) => state.cart);
 
+  // Fetch categories
   const categoriesQuery = useFetchCategoriesQuery();
-  const [priceFilter, setPriceFilter] = useState(""); // Bộ lọc theo giá
-  const [searchTerm, setSearchTerm] = useState(""); // Tìm kiếm theo từ khóa
-  const [showAllCategories, setShowAllCategories] = useState(false); // Quản lý chế độ hiển thị categories
 
-  // State phân trang
-  const [currentPage, setCurrentPage] = useState(1); // Trang hiện tại
-  const itemsPerPage = 8; // Số sản phẩm hiển thị mỗi trang
+  // Fetch brands
+  const { data: brandsData, isLoading: brandsLoading, isError: brandsError } = useGetBrandsQuery();
 
+  const [priceFilter, setPriceFilter] = useState(""); 
+  const [searchTerm, setSearchTerm] = useState(""); 
+  const [showAllCategories, setShowAllCategories] = useState(false); 
+
+  // Pagination
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 8;
+
+  // Filtered products query
   const filteredProductsQuery = useGetFilteredProductsQuery({
     checked,
     radio,
+    brands: checkedBrands, // thêm brands vào query
   });
 
-  // Fetch categories
+  // Fetch categories vào Redux
   useEffect(() => {
-    if (!categoriesQuery.isLoading) {
+    if (!categoriesQuery.isLoading && categoriesQuery.data) {
       dispatch(setCategories(categoriesQuery.data));
     }
-  }, [categoriesQuery.data, dispatch]);
+  }, [categoriesQuery.data, categoriesQuery.isLoading, dispatch]);
 
-  // Hiển thị tối đa 9 categories nếu không chọn "Show More"
-  const displayedCategories = showAllCategories
-    ? categories
-    : categories.slice(0, 9);
+  const displayedCategories = showAllCategories ? categories : categories.slice(0, 9);
 
-  // Áp dụng bộ lọc sản phẩm
+  // Apply filters lên products khi data trả về
   useEffect(() => {
     if (filteredProductsQuery.data) {
       let filteredProducts = filteredProductsQuery.data;
 
-      // Áp dụng bộ lọc tìm kiếm
       if (searchTerm) {
         filteredProducts = filteredProducts.filter((product) =>
           product.name.toLowerCase().includes(searchTerm.toLowerCase())
@@ -72,41 +74,48 @@ const Shop = () => {
     }
   }, [filteredProductsQuery.data, searchTerm, priceFilter, dispatch]);
 
-  // Bộ lọc categories
+  // Handle category checkbox
   const handleCheck = (value, id) => {
-    const updatedChecked = value
-      ? [...checked, id]
-      : checked.filter((c) => c !== id);
+    const updatedChecked = value ? [...checked, id] : checked.filter((c) => c !== id);
     dispatch(setChecked(updatedChecked));
+    setCurrentPage(1);
   };
 
-  // Bộ lọc theo giá
+  // Handle brand checkbox
+  const handleBrandCheck = (value, brand) => {
+    let updatedBrands;
+    if (value) {
+      updatedBrands = [...checkedBrands, brand];
+    } else {
+      updatedBrands = checkedBrands.filter((b) => b !== brand);
+    }
+    dispatch(setCheckedBrands(updatedBrands));
+    setCurrentPage(1); // reset pagination khi filter thay đổi
+  };
+
+  // Handle price
   const handlePriceChange = (e) => {
     setPriceFilter(e.target.value);
   };
 
-  // Xử lý nút Reset
+  // Reset filters
   const handleReset = () => {
-    setSearchTerm(""); // Reset tìm kiếm
-    setPriceFilter(""); // Reset giá
-    dispatch(setChecked([])); // Reset danh sách categories đã chọn
-    setCurrentPage(1); // Reset về trang đầu tiên
+    setSearchTerm("");
+    setPriceFilter("");
+    dispatch(setChecked([]));
+    dispatch(setCheckedBrands([]));
+    setCurrentPage(1);
   };
 
-  // Phân trang: Lấy sản phẩm theo trang hiện tại
+  // Pagination logic
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentProducts = products.slice(indexOfFirstItem, indexOfLastItem);
-
-  // Tổng số trang
   const totalPages = Math.ceil(products.length / itemsPerPage);
 
-  // Sử dụng mutation
   const [updateUserCart] = useUpdateUserCartMutation();
 
-  // Hàm thêm vào giỏ hàng
   const handleAddToCart = async (product, qty) => {
-
     if (!userInfo) {
       toast.warn("Please login to add a product to cart.");
       navigate("/login");
@@ -117,12 +126,7 @@ const Shop = () => {
     toast.success("Added to cart!");
 
     if (userInfo) {
-      // Định dạng cartItems để gửi lên backend
-      const formattedCartItems = [
-        ...cartItems,
-        { product: product._id, qty: Number(qty) },
-      ];
-
+      const formattedCartItems = [...cartItems, { product: product._id, qty: Number(qty) }];
       try {
         await updateUserCart({ userId: userInfo._id, cartItems: formattedCartItems }).unwrap();
         toast.success("Cart updated on server!");
@@ -132,7 +136,6 @@ const Shop = () => {
     }
   };
 
-  // Xử lý chuyển trang
   const handlePageChange = (page) => {
     setCurrentPage(page);
   };
@@ -140,20 +143,18 @@ const Shop = () => {
   return (
     <>
       <div className="container mx-auto">
-        {/* Thanh tìm kiếm */}
+        {/* Search Bar */}
         <div className="flex justify-between items-center mb-6 mr-40">
           <h1 className="text-3xl font-bold ml-20">Shop</h1>
           <form
-            onSubmit={(e) => {
-              e.preventDefault();
-            }}
+            onSubmit={(e) => { e.preventDefault(); }}
             className="flex items-center bg-gray-800 p-2 rounded-lg"
           >
             <input
               type="text"
               placeholder="Search products..."
               value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)} // Cập nhật từ khóa tìm kiếm
+              onChange={(e) => setSearchTerm(e.target.value)}
               className="bg-transparent border-none outline-none text-white px-4 py-2"
             />
             <button
@@ -166,12 +167,11 @@ const Shop = () => {
         </div>
 
         <div className="flex md:flex-row ml-12">
-          {/* Bộ lọc */}
+          {/* Filters */}
           <div className="bg-[#151515] p-3 mt-2 mb-2">
             <h2 className="h4 text-center py-2 bg-black rounded-full mb-2">
               Filter by Categories
             </h2>
-
             <div className="p-5 w-[15rem]">
               {displayedCategories?.map((c) => (
                 <div key={c._id} className="mb-2">
@@ -180,12 +180,12 @@ const Shop = () => {
                       type="checkbox"
                       id={`category-${c._id}`}
                       onChange={(e) => handleCheck(e.target.checked, c._id)}
-                      checked={checked.includes(c._id)} // Kiểm tra xem category có được chọn không
-                      className="w-4 h-4 text-red-600 bg-gray-100 border-gray-300 rounded focus:ring-red-500 dark:focus:ring-red-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+                      checked={checked.includes(c._id)}
+                      className="w-4 h-4 text-red-600 bg-gray-100 border-gray-300 rounded focus:ring-red-500"
                     />
                     <label
                       htmlFor={`category-${c._id}`}
-                      className="ml-2 text-sm font-medium text-white dark:text-gray-300"
+                      className="ml-2 text-sm font-medium text-white"
                     >
                       {c.name}
                     </label>
@@ -202,7 +202,39 @@ const Shop = () => {
               )}
             </div>
 
-            {/* Bộ lọc theo giá */}
+            {/* Filter by Brand */}
+            <h2 className="h4 text-center py-2 bg-black rounded-full mt-4 mb-2">
+              Filter by Brand
+            </h2>
+            <div className="p-5 w-[15rem]">
+              {brandsLoading ? (
+                <p className="text-white">Loading brands...</p>
+              ) : brandsError ? (
+                <p className="text-red-500">Error loading brands</p>
+              ) : (
+                brandsData.map((brand) => (
+                  <div key={brand} className="mb-2">
+                    <div className="flex items-center mr-4">
+                      <input
+                        type="checkbox"
+                        id={`brand-${brand}`}
+                        onChange={(e) => handleBrandCheck(e.target.checked, brand)}
+                        checked={checkedBrands.includes(brand)}
+                        className="w-4 h-4 text-red-600 bg-gray-100 border-gray-300 rounded focus:ring-red-500"
+                      />
+                      <label
+                        htmlFor={`brand-${brand}`}
+                        className="ml-2 text-sm font-medium text-white"
+                      >
+                        {brand}
+                      </label>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+
+            {/* Filter by Price */}
             <div className="mt-4">
               <label
                 htmlFor="price"
@@ -220,7 +252,7 @@ const Shop = () => {
               />
             </div>
 
-            {/* Nút Reset */}
+            {/* Reset Filters */}
             <button
               onClick={handleReset}
               className="w-full mt-4 bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700"
@@ -229,7 +261,7 @@ const Shop = () => {
             </button>
           </div>
 
-          {/* Danh sách sản phẩm */}
+          {/* Products List */}
           <div className="p-3">
             <h2 className="h4 mb-2 ml-auto">{products?.length} Products</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
@@ -237,10 +269,10 @@ const Shop = () => {
                 <Loader />
               ) : (
                 currentProducts.map((p) => (
-                  <ProductCard 
-                    key={p._id} 
-                    p={p} 
-                    addToCartHandler={() => handleAddToCart(p, 1)} // Truyền handler
+                  <ProductCard
+                    key={p._id}
+                    p={p}
+                    addToCartHandler={() => handleAddToCart(p, 1)}
                   />
                 ))
               )}
@@ -248,7 +280,6 @@ const Shop = () => {
 
             {/* Pagination */}
             <div className="flex justify-center mt-4 items-center">
-              {/* First Page */}
               <button
                 onClick={() => handlePageChange(1)}
                 disabled={currentPage === 1}
@@ -261,7 +292,6 @@ const Shop = () => {
                 «
               </button>
 
-              {/* Previous Page */}
               <button
                 onClick={() => handlePageChange(currentPage - 1)}
                 disabled={currentPage === 1}
@@ -274,7 +304,6 @@ const Shop = () => {
                 ‹
               </button>
 
-              {/* Page Numbers */}
               {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
                 <button
                   key={page}
@@ -289,7 +318,6 @@ const Shop = () => {
                 </button>
               ))}
 
-              {/* Next Page */}
               <button
                 onClick={() => handlePageChange(currentPage + 1)}
                 disabled={currentPage === totalPages}
@@ -302,7 +330,6 @@ const Shop = () => {
                 ›
               </button>
 
-              {/* Last Page */}
               <button
                 onClick={() => handlePageChange(totalPages)}
                 disabled={currentPage === totalPages}

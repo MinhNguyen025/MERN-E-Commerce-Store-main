@@ -95,7 +95,8 @@ const ProductDetails = () => {
 
   return (
     <>
-      {product && <Breadcrumb productName={product.name} />}
+      {/* {product && <Breadcrumb productName={product.name} />} */}
+
       {/* <div>
         <Link
           to="/"
@@ -113,12 +114,12 @@ const ProductDetails = () => {
         </Message>
       ) : (
         <>
-          <div className="flex flex-wrap relative items-between mt-[2rem] ml-[10rem]">
-            <div>
+          <div className="flex flex-wrap relative items-start mt-[2rem] ml-[10rem] mr-4 gap-8">
+            <div  className="relative">
               <img
                 src={product.image}
                 alt={product.name}
-                className="w-full xl:w-[50rem] lg:w-[45rem] md:w-[30rem] sm:w-[20rem] mr-[2rem]"
+                className="max-w-[600px] h-[400px] mx-auto object-contain border-gray-300 rounded-lg"
               />
 
               <HeartIcon product={product} />
@@ -174,7 +175,7 @@ const ProductDetails = () => {
                     <select
                       value={qty}
                       onChange={(e) => setQty(e.target.value)}
-                      className="p-2 w-[6rem] rounded-lg text-black"
+                      className="p-2 w-[6rem] rounded-lg text-black mr-40"
                     >
                       {[...Array(product.countInStock).keys()].map((x) => (
                         <option key={x + 1} value={x + 1}>

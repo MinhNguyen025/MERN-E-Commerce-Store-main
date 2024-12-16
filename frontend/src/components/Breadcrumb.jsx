@@ -5,8 +5,13 @@ const Breadcrumb = () => {
   const location = useLocation();
   const { pathname } = location;
 
+  const hiddenPaths = ["/", "/login", "/register"];
+  if (hiddenPaths.includes(pathname)) {
+    return null;
+  }
   // Tách đường dẫn thành các phần
   const pathnames = pathname.split("/").filter((x) => x);
+
 
   return (
     <nav className=" text-gray-400 mb-4 ml-40">

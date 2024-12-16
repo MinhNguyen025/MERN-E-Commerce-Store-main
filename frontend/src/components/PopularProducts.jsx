@@ -2,6 +2,7 @@ import { useGetTopProductsQuery } from "../redux/api/productApiSlice";
 import Loader from "./Loader";
 import Product from "../pages/Products/Product";
 import ProductCarousel from "../pages/Products/ProductCarousel";
+import AdBanner from "./AdBanner";
 
 const PopularProducts = () => {
   const { data, isLoading, error } = useGetTopProductsQuery();
@@ -15,7 +16,9 @@ const PopularProducts = () => {
   }
 
   return (
+    
     <div className="px-[4rem] mt-[4rem]">
+      <AdBanner />
 
       <h1 className="text-4xl font-bold text-white mb-6 ml-40">
         Popular Products

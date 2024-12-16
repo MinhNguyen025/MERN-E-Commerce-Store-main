@@ -22,6 +22,9 @@ FROM nginx:stable-alpine
 # Copy build từ stage trước vào thư mục mặc định của Nginx
 COPY --from=build /app/dist /usr/share/nginx/html
 
+# Copy cấu hình Nginx tùy chỉnh
+COPY nginx.conf /etc/nginx/conf.d/default.conf
+
 # Expose port 80
 EXPOSE 80
 

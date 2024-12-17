@@ -41,10 +41,9 @@ const Shop = () => {
   const filteredProductsQuery = useGetFilteredProductsQuery({
     checked,
     radio,
-    brands: checkedBrands, // thêm brands vào query
+    brands: checkedBrands,
   });
 
-  // Fetch categories vào Redux
   useEffect(() => {
     if (!categoriesQuery.isLoading && categoriesQuery.data) {
       dispatch(setCategories(categoriesQuery.data));
@@ -53,7 +52,6 @@ const Shop = () => {
 
   const displayedCategories = showAllCategories ? categories : categories.slice(0, 9);
 
-  // Apply filters lên products khi data trả về
   useEffect(() => {
     if (filteredProductsQuery.data) {
       let filteredProducts = filteredProductsQuery.data;
@@ -74,14 +72,12 @@ const Shop = () => {
     }
   }, [filteredProductsQuery.data, searchTerm, priceFilter, dispatch]);
 
-  // Handle category checkbox
   const handleCheck = (value, id) => {
     const updatedChecked = value ? [...checked, id] : checked.filter((c) => c !== id);
     dispatch(setChecked(updatedChecked));
     setCurrentPage(1);
   };
 
-  // Handle brand checkbox
   const handleBrandCheck = (value, brand) => {
     let updatedBrands;
     if (value) {
@@ -90,15 +86,13 @@ const Shop = () => {
       updatedBrands = checkedBrands.filter((b) => b !== brand);
     }
     dispatch(setCheckedBrands(updatedBrands));
-    setCurrentPage(1); // reset pagination khi filter thay đổi
+    setCurrentPage(1);
   };
 
-  // Handle price
   const handlePriceChange = (e) => {
     setPriceFilter(e.target.value);
   };
 
-  // Reset filters
   const handleReset = () => {
     setSearchTerm("");
     setPriceFilter("");
@@ -107,7 +101,6 @@ const Shop = () => {
     setCurrentPage(1);
   };
 
-  // Pagination logic
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentProducts = products.slice(indexOfFirstItem, indexOfLastItem);
@@ -122,17 +115,17 @@ const Shop = () => {
       return;
     }
 
+    // Dispatch để cập nhật giỏ trên frontend
     dispatch(addToCart({ ...product, qty }));
     toast.success("Added to cart!");
 
-    if (userInfo) {
-      const formattedCartItems = [...cartItems, { product: product._id, qty: Number(qty) }];
-      try {
-        await updateUserCart({ userId: userInfo._id, cartItems: formattedCartItems }).unwrap();
-        toast.success("Cart updated on server!");
-      } catch (error) {
-        toast.error(error?.data?.message || error.message);
-      }
+    // Cập nhật giỏ hàng lên server ngay sau khi thêm vào frontend
+    const formattedCartItems = [...cartItems, { product: product._id, qty: Number(qty) }];
+    try {
+      await updateUserCart({ userId: userInfo._id, cartItems: formattedCartItems }).unwrap();
+      // toast.success("Cart updated on server!");
+    } catch (error) {
+      toast.error(error?.data?.message || error.message);
     }
   };
 

@@ -1,4 +1,5 @@
 // src/pages/Products/ProductDetails.js
+
 import { useState } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
@@ -7,7 +8,7 @@ import {
   useGetProductDetailsQuery,
   useCreateReviewMutation,
 } from "../../redux/api/productApiSlice";
-import { useUpdateUserCartMutation} from "../../redux/api/usersApiSlice"; // Import mutation
+import { useUpdateUserCartMutation} from "../../redux/api/usersApiSlice"; 
 import Loader from "../../components/Loader";
 import Message from "../../components/Message";
 import {
@@ -22,7 +23,7 @@ import HeartIcon from "./HeartIcon";
 import Ratings from "./Ratings";
 import ProductTabs from "./ProductTabs";
 import { addToCart } from "../../redux/features/cart/cartSlice";
-import Breadcrumb from "../../components/Breadcrumb";
+// import Breadcrumb from "../../components/Breadcrumb"; // đang comment lại phần breadcrumb nếu không dùng
 
 const ProductDetails = () => {
   const { id: productId } = useParams();
@@ -33,30 +34,17 @@ const ProductDetails = () => {
   const [rating, setRating] = useState(0);
   const [comment, setComment] = useState("");
 
-  const {
-    data: product,
-    isLoading,
-    refetch,
-    error,
-  } = useGetProductDetailsQuery(productId);
-
+  const { data: product, isLoading, refetch, error } = useGetProductDetailsQuery(productId);
   const { userInfo } = useSelector((state) => state.auth);
-  const { cartItems } = useSelector((state) => state.cart); // Lấy cartItems từ Redux
+  const { cartItems } = useSelector((state) => state.cart);
 
-  const [createReview, { isLoading: loadingProductReview }] =
-    useCreateReviewMutation();
-
-  const [updateUserCart] = useUpdateUserCartMutation(); // Sử dụng mutation
+  const [createReview, { isLoading: loadingProductReview }] = useCreateReviewMutation();
+  const [updateUserCart] = useUpdateUserCartMutation();
 
   const submitHandler = async (e) => {
     e.preventDefault();
-
     try {
-      await createReview({
-        productId,
-        rating,
-        comment,
-      }).unwrap();
+      await createReview({ productId, rating, comment }).unwrap();
       refetch();
       toast.success("Review created successfully");
     } catch (error) {
@@ -70,48 +58,30 @@ const ProductDetails = () => {
       navigate("/login");
       return;
     }
- 
+
+    // Tạo newCartItems trước khi dispatch
+    const newCartItems = [...cartItems, { product: product._id, qty: Number(qty) }];
+
+    // Dispatch để cập nhật frontend
     dispatch(addToCart({ ...product, qty }));
     toast.success("Added to cart!");
 
-
-    if (userInfo) {
-      // Định dạng cartItems để gửi lên backend
-      const formattedCartItems = [
-        ...cartItems,
-        { product: product._id, qty: Number(qty) },
-      ];
-
-      try {
-        await updateUserCart({ userId: userInfo._id, cartItems: formattedCartItems }).unwrap();
-        // toast.success("Cart updated on server!");
-      } catch (error) {
-        toast.error(error?.data?.message || error.message);
-      }
+    // Gửi cập nhật lên server
+    try {
+      await updateUserCart({ userId: userInfo._id, cartItems: newCartItems }).unwrap();
+      toast.success("Cart updated on server!");
+      navigate("/cart");
+    } catch (error) {
+      toast.error(error?.data?.message || error.message);
     }
-
-    navigate("/cart");
   };
 
   return (
     <>
-      {/* {product && <Breadcrumb productName={product.name} />} */}
-
-      {/* <div>
-        <Link
-          to="/"
-          className="text-white font-semibold hover:underline ml-[10rem]"
-        >
-          Go Back
-        </Link>
-      </div> */}
-
       {isLoading ? (
         <Loader />
       ) : error ? (
-        <Message variant="danger">
-          {error?.data?.message || error.message}
-        </Message>
+        <Message variant="danger">{error?.data?.message || error.message}</Message>
       ) : (
         <>
           <div className="flex flex-wrap relative items-start mt-[2rem] ml-[10rem] mr-4 gap-8">
@@ -121,7 +91,6 @@ const ProductDetails = () => {
                 alt={product.name}
                 className="max-w-[600px] h-[400px] mx-auto object-contain border-gray-300 rounded-lg"
               />
-
               <HeartIcon product={product} />
             </div>
 
@@ -136,8 +105,7 @@ const ProductDetails = () => {
               <div className="flex items-center justify-between w-[20rem]">
                 <div className="one">
                   <h1 className="flex items-center mb-6">
-                    <FaStore className="mr-2 text-white" /> Brand:{" "}
-                    {product.brand}
+                    <FaStore className="mr-2 text-white" /> Brand: {product.brand}
                   </h1>
                   <h1 className="flex items-center mb-6 w-[20rem]">
                     <FaClock className="mr-2 text-white" /> Added:{" "}

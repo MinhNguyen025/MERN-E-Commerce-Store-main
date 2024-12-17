@@ -42,17 +42,17 @@ const Cart = () => {
           console.log("Sending sanitizedCartItems to backend:", sanitizedCartItems); // Thêm log để kiểm tra
           await updateUserCart({ userId: userInfo._id, cartItems: sanitizedCartItems }).unwrap();
           // Refetch để đảm bảo dữ liệu đồng nhất
-          await refetch();
+          //await refetch();
         } catch (err) {
           console.error('Error updating cart:', err);
-          toast.error('Failed to update cart. Please try again.');
+          //toast.error('Failed to update cart. Please try again.');
         }
       }
     };
 
     syncCartWithBackend();
-  }, [cartItems, userInfo, updateUserCart, refetch]);
-
+  // }, [cartItems, userInfo, updateUserCart, refetch]);
+}, [cartItems, userInfo, updateUserCart]);
   const addToCartHandler = (item, qty) => {
     // Dispatch addToCart với đầy đủ thông tin sản phẩm
     dispatch(addToCart({ 

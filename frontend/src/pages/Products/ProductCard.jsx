@@ -1,4 +1,4 @@
-// File: src/components/Products/ProductCard.jsx
+// src/components/Products/ProductCard.jsx
 
 import { Link, useNavigate } from "react-router-dom";
 import { AiOutlineShoppingCart } from "react-icons/ai";
@@ -6,19 +6,24 @@ import { useDispatch, useSelector } from "react-redux";
 import { addToCart } from "../../redux/features/cart/cartSlice";
 import { toast } from "react-toastify";
 import HeartIcon from "./HeartIcon";
+import { useUpdateUserCartMutation } from "../../redux/api/usersApiSlice";
 
 const ProductCard = ({ p }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { userInfo } = useSelector((state) => state.auth);
+  const { cartItems } = useSelector((state) => state.cart);
+  const [updateUserCart] = useUpdateUserCartMutation();
 
-  const addToCartHandler = (product, qty) => {
-    // Chỉ gửi các trường cần thiết để đồng nhất với cartSlice
+  const addToCartHandler = async (product, qty) => {
+    // Kiểm tra user đã login chưa
     if (!userInfo) {
       toast.warn("Please login to add a product to cart.");
       navigate("/login");
       return;
     }
+
+    // Thêm vào giỏ hàng ở frontend (Redux)
     dispatch(
       addToCart({
         product: product._id,
@@ -33,6 +38,15 @@ const ProductCard = ({ p }) => {
       position: toast.POSITION.TOP_RIGHT,
       autoClose: 2000,
     });
+
+    // Cập nhật giỏ hàng lên database
+    const newCartItems = [...cartItems, { product: product._id, qty: Number(qty) }];
+    try {
+      await updateUserCart({ userId: userInfo._id, cartItems: newCartItems }).unwrap();
+      // toast.success("Cart updated on server!");
+    } catch (error) {
+      toast.error(error?.data?.message || error.message);
+    }
   };
 
   return (

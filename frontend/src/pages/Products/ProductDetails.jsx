@@ -69,7 +69,7 @@ const ProductDetails = () => {
     // Gửi cập nhật lên server
     try {
       await updateUserCart({ userId: userInfo._id, cartItems: newCartItems }).unwrap();
-      toast.success("Cart updated on server!");
+      // toast.success("Cart updated on server!");
       navigate("/cart");
     } catch (error) {
       toast.error(error?.data?.message || error.message);

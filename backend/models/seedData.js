@@ -2,7 +2,7 @@ import mongoose from "mongoose";
 import { faker } from "@faker-js/faker";
 import dotenv from "dotenv";
 
-import Category from "./categoryModel.js"; // Đường dẫn tới model Category
+import Category from "./categoryModel.js";
 
 dotenv.config(); 
 

@@ -1,14 +1,12 @@
 // File: src/pages/Auth/Login.jsx
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import Loader from "../../components/Loader";
-import { useLoginMutation } from "../../redux/api/usersApiSlice";
+import { useLoginMutation, useGetUserCartQuery } from "../../redux/api/usersApiSlice";
 import { setCredentials } from "../../redux/features/auth/authSlice";
 import { toast } from "react-toastify";
 import { setCartItemsFromDB } from "../../redux/features/cart/cartSlice";
-import { useGetUserCartQuery } from "../../redux/api/usersApiSlice";
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -16,47 +14,76 @@ const Login = () => {
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const [login, { isLoading }] = useLoginMutation();
-  const { userInfo } = useSelector((state) => state.auth);
-
-  const { search } = useLocation();
+  const location = useLocation();
+  
+  const { search } = location;
   const sp = new URLSearchParams(search);
   const redirect = sp.get("redirect") || "/";
 
-  // Hook để lấy giỏ hàng của user
-  const { data: cartData, refetch } = useGetUserCartQuery(userInfo?._id, {
+  const [login, { isLoading, isError, error }] = useLoginMutation();
+  const { userInfo } = useSelector((state) => state.auth);
+
+  // Hook to get user cart, enabled only when userInfo exists
+  const { data: cartData, refetch: refetchCart, isFetching: isFetchingCart } = useGetUserCartQuery(userInfo?._id, {
     skip: !userInfo,
   });
 
-  const handleLoginSuccess = async (user) => {
-    // user chứa thông tin userInfo (_id, username, email...)
-    const userId = user._id;
-    try {
-      // Gọi API để lấy giỏ hàng từ backend
-      await refetch();
-      
-      if (cartData) {
-        // Cập nhật cart vào Redux với cấu trúc đầy đủ
-        dispatch(setCartItemsFromDB(cartData));
-      }
-    } catch (err) {
-      console.error('Error fetching cart:', err);
-    }
+  // Effect to handle navigation and cart fetching when userInfo changes
+  useEffect(() => {
+    const fetchCartAndNavigate = async () => {
+      if (userInfo) {
+        try {
+          // Fetch the cart data
+          const cartResponse = await refetchCart();
 
-    // Fetch cart xong thì chuyển hướng
-    navigate(redirect);
-  };
+          if (cartResponse.data) {
+            // Update the cart in Redux
+            dispatch(setCartItemsFromDB(cartResponse.data));
+          }
+
+          // Navigate to the redirect URL
+          navigate(redirect);
+        } catch (err) {
+          console.error('Error fetching cart:', err);
+          toast.error("Failed to load cart. Please try again.");
+          // Optionally, you can log the user out or handle this error as needed
+        }
+      }
+    };
+
+    fetchCartAndNavigate();
+  }, [userInfo, refetchCart, dispatch, navigate, redirect]);
 
   const submitHandler = async (e) => {
     e.preventDefault();
+
+    // Validate email and password
+    if (!email.trim()) {
+      toast.error("Email cannot be empty!");
+      return;
+    }
+    if (!password.trim()) {
+      toast.error("Password cannot be empty!");
+      return;
+    }
+
     try {
+      // Attempt to log in
       const res = await login({ email, password }).unwrap();
-      // Lưu thông tin đăng nhập vào Redux
+      // Dispatch the user credentials to Redux
       dispatch(setCredentials({ ...res }));
-      // Sau khi login thành công thì load giỏ hàng và navigate
-      await handleLoginSuccess(res);
+      // No need to handle navigation here; useEffect will take care of it
     } catch (err) {
-      toast.error(err?.data?.message || err.error);
+      // Log the error for debugging
+      console.error("Login error: ", err);
+
+      // Handle specific error messages
+      if (err?.data?.message === "Invalid email or password") {
+        toast.error("Wrong email or password!");
+      } else {
+        toast.error(err?.data?.message || "Something went wrong. Try again!");
+      }
+      // isLoading will automatically be set to false by RTK Query
     }
   };
 
@@ -65,7 +92,7 @@ const Login = () => {
       <section className="pl-[10rem] flex items-center justify-between min-h-screen">
         {/* Form Sign In */}
         <div className="w-full lg:w-1/2 mr-[4rem] mt-[5rem]">
-          <h1 className="text-2xl font-semibold mb-4">Sign In</h1>
+          <h1 className="text-2xl font-semibold mb-4 text-white">Sign In</h1>
 
           <form onSubmit={submitHandler} className="container max-w-md">
             <div className="my-[2rem]">
@@ -107,9 +134,10 @@ const Login = () => {
             <button
               disabled={isLoading}
               type="submit"
-              className="bg-red-500 text-white px-4 py-2 rounded cursor-pointer my-[1rem] flex items-center justify-center"
+              className={`bg-red-500 text-white px-4 py-2 rounded cursor-pointer my-[1rem] flex items-center justify-center ${
+                isLoading ? "opacity-50 cursor-not-allowed" : ""
+              }`}
             >
-
               {isLoading && (
                 <span className="animate-spin rounded-full h-4 w-4 border-t-2 border-white border-opacity-50 mr-2"></span>
               )}
@@ -130,6 +158,7 @@ const Login = () => {
           </div>
         </div>
 
+        {/* Login Image */}
         <div className="hidden lg:flex lg:items-center lg:justify-center lg:w-1/2">
           <img
             src="https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1964&q=80"

@@ -16,6 +16,7 @@ const createUser = asyncHandler(async (req, res) => {
 
   const salt = await bcrypt.genSalt(10);
   const hashedPassword = await bcrypt.hash(password, salt);
+
   const newUser = new User({ username, email, password: hashedPassword });
 
   try {
@@ -34,33 +35,49 @@ const createUser = asyncHandler(async (req, res) => {
   }
 });
 
+// File: controllers/userController.js
+
 const loginUser = asyncHandler(async (req, res) => {
   const { email, password } = req.body;
 
-  console.log(email);
-  console.log(password);
+  console.log("Login attempt with email:", email);
 
+  // Validate that both email and password are provided
+  if (!email || !password) {
+    res.status(400);
+    throw new Error("Please provide both email and password.");
+  }
+
+  // Find the user by email
   const existingUser = await User.findOne({ email });
 
-  if (existingUser) {
-    const isPasswordValid = await bcrypt.compare(
-      password,
-      existingUser.password
-    );
-
-    if (isPasswordValid) {
-      createToken(res, existingUser._id);
-
-      res.status(201).json({
-        _id: existingUser._id,
-        username: existingUser.username,
-        email: existingUser.email,
-        isAdmin: existingUser.isAdmin,
-      });
-      return;
-    }
+  if (!existingUser) {
+    // If user does not exist, send a 401 Unauthorized response
+    res.status(401);
+    throw new Error("Invalid email or password.");
   }
+
+  // Compare the provided password with the hashed password in the database
+  const isPasswordValid = await bcrypt.compare(password, existingUser.password);
+
+  if (!isPasswordValid) {
+    // If password is invalid, send a 401 Unauthorized response
+    res.status(401);
+    throw new Error("Invalid email or password.");
+  }
+
+  // If authentication is successful, create a JWT token
+  createToken(res, existingUser._id);
+
+  // Send a 200 OK response with user details
+  res.status(200).json({
+    _id: existingUser._id,
+    username: existingUser.username,
+    email: existingUser.email,
+    isAdmin: existingUser.isAdmin,
+  });
 });
+
 
 const logoutCurrentUser = asyncHandler(async (req, res) => {
   res.cookie("jwt", "", {

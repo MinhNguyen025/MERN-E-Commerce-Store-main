@@ -123,7 +123,7 @@ const Navigation = () => {
 
             {/* Products */}
             <Link
-              to="/admin/AddProduct"
+              to="/admin/allproductslist"
               className={`nav-item hover:bg-red-500 ${
                 selectedItem === "PRODUCTS" ? "bg-red-500" : ""
               }`}

@@ -10,7 +10,7 @@ const ProductCarousel = () => {
   const settings = {
     dots: false,
     infinite: true,
-    speed: 500,
+    speed: 3000,
     slidesToShow: 1,
     slidesToScroll: 1,
     arrows: true,
@@ -27,14 +27,14 @@ const ProductCarousel = () => {
       ) : (
         <Slider
           {...settings}
-          className="xl:w-[50rem] lg:w-[50rem] md:w-[56rem] sm:w-[40rem] sm:block"
+          className="xl:w-[70rem] lg:w-[50rem] md:w-[56rem] sm:w-[40rem] sm:block"
         >
           {products.map(({ image, _id, name }) => (
             <div key={_id}>
               <img
                 src={image}
                 alt={name}
-                className="w-[50rem] rounded-lg object-cover h-[35rem]"
+                className="w-full border-none object-cover h-[47rem]"
               />
             </div>
           ))}

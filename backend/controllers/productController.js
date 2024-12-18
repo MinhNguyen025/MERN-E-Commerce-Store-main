@@ -122,10 +122,19 @@ const fetchAllProducts = asyncHandler(async (req, res) => {
   try {
     const page = parseInt(req.query.page) || 1; // Trang hiện tại
     const limit = parseInt(req.query.limit) || 5; // Số sản phẩm mỗi trang
+    const keyword = req.query.keyword
+    ? {
+        name: {
+          $regex: req.query.keyword,
+          $options: "i", // Không phân biệt chữ hoa chữ thường
+        },
+      }
+    : {};
+
     const skip = (page - 1) * limit; // Số sản phẩm cần bỏ qua
 
-    const count = await Product.countDocuments(); // Tổng số sản phẩm
-    const products = await Product.find({})
+    const count = await Product.countDocuments({ ...keyword }); // Tổng số sản phẩm phù hợp
+    const products = await Product.find({ ...keyword })
       .populate("category")
       .sort({ createdAt: -1 })
       .skip(skip)

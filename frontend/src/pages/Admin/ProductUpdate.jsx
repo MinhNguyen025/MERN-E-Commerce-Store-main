@@ -1,3 +1,4 @@
+// AdminProductUpdate.jsx
 import { useState, useEffect } from "react";
 import AdminMenu from "./AdminMenu";
 import { useNavigate, useParams } from "react-router-dom";
@@ -12,68 +13,79 @@ import { toast } from "react-toastify";
 
 const AdminProductUpdate = () => {
   const params = useParams();
-
-  const { data: productData } = useGetProductByIdQuery(params._id);
-
-  console.log(productData);
-
-  const [image, setImage] = useState(productData?.image || "");
-  const [name, setName] = useState(productData?.name || "");
-  const [description, setDescription] = useState(
-    productData?.description || ""
-  );
-  const [price, setPrice] = useState(productData?.price || "");
-  const [category, setCategory] = useState(productData?.category || "");
-  const [quantity, setQuantity] = useState(productData?.quantity || "");
-  const [brand, setBrand] = useState(productData?.brand || "");
-  const [stock, setStock] = useState(productData?.countInStock);
-
-  // hook
   const navigate = useNavigate();
 
-  // Fetch categories using RTK Query
-  const { data: categories = [] } = useFetchCategoriesQuery();
+  // Fetch product by ID
+  const { data: productData, isLoading: isLoadingProduct, error: errorProduct } = useGetProductByIdQuery(params._id);
 
+  // Fetch categories
+  const { data: categories = [], isLoading: isLoadingCategories, error: errorCategories } = useFetchCategoriesQuery();
+
+  // Define mutations
   const [uploadProductImage] = useUploadProductImageMutation();
+  const [updateProduct, { isLoading: isUpdating }] = useUpdateProductMutation();
+  const [deleteProduct, { isLoading: isDeleting }] = useDeleteProductMutation();
 
-  // Define the update product mutation
-  const [updateProduct] = useUpdateProductMutation();
+  // State variables
+  const [image, setImage] = useState("");
+  const [name, setName] = useState("");
+  const [description, setDescription] = useState("");
+  const [price, setPrice] = useState("");
+  const [category, setCategory] = useState("");
+  const [quantity, setQuantity] = useState("");
+  const [brand, setBrand] = useState("");
+  const [stock, setStock] = useState(0);
 
-  // Define the delete product mutation
-  const [deleteProduct] = useDeleteProductMutation();
-
+  // Set form fields when productData is fetched
   useEffect(() => {
     if (productData && productData._id) {
       setName(productData.name);
       setDescription(productData.description);
       setPrice(productData.price);
-      setCategory(productData.category?._id);
+      setCategory(productData.category?._id || "");
       setQuantity(productData.quantity);
       setBrand(productData.brand);
       setImage(productData.image);
+      setStock(productData.countInStock);
     }
   }, [productData]);
 
+  // Handle image upload
   const uploadFileHandler = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
     const formData = new FormData();
-    formData.append("image", e.target.files[0]);
+    formData.append("image", file);
+
     try {
       const res = await uploadProductImage(formData).unwrap();
-      toast.success("Item added successfully", {
+      toast.success("Image uploaded successfully!", {
         position: toast.POSITION.TOP_RIGHT,
         autoClose: 2000,
       });
       setImage(res.image);
     } catch (err) {
-      toast.success("Item added successfully", {
+      console.error(err);
+      toast.error(err?.data?.message || "Image upload failed.", {
         position: toast.POSITION.TOP_RIGHT,
         autoClose: 2000,
       });
     }
   };
 
+  // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (!name || !price || !category || !brand || !description) {
+      toast.error("Please fill in all required fields.", {
+        position: toast.POSITION.TOP_RIGHT,
+        autoClose: 2000,
+      });
+      return;
+    }
+
     try {
       const formData = new FormData();
       formData.append("image", image);
@@ -85,184 +97,228 @@ const AdminProductUpdate = () => {
       formData.append("brand", brand);
       formData.append("countInStock", stock);
 
-      // Update product using the RTK Query mutation
-      const data = await updateProduct({ productId: params._id, formData });
+      const response = await updateProduct({ productId: params._id, formData }).unwrap();
 
-      if (data?.error) {
-        toast.error(data.error, {
-          position: toast.POSITION.TOP_RIGHT,
-          autoClose: 2000,
-        });
-      } else {
-        toast.success(`Product successfully updated`, {
-          position: toast.POSITION.TOP_RIGHT,
-          autoClose: 2000,
-        });
-        navigate("/admin/allproductslist");
-      }
-    } catch (err) {
-      console.log(err);
-      toast.error("Product update failed. Try again.", {
-        position: toast.POSITION.TOP_RIGHT,
-        autoClose: 2000,
-      });
-    }
-  };
-
-  const handleDelete = async () => {
-    try {
-      let answer = window.confirm(
-        "Are you sure you want to delete this product?"
-      );
-      if (!answer) return;
-
-      const { data } = await deleteProduct(params._id);
-      toast.success(`"${data.name}" is deleted`, {
+      toast.success("Product updated successfully!", {
         position: toast.POSITION.TOP_RIGHT,
         autoClose: 2000,
       });
       navigate("/admin/allproductslist");
     } catch (err) {
-      console.log(err);
-      toast.error("Delete failed. Try again.", {
+      console.error(err);
+      toast.error(err?.data?.message || "Product update failed. Try again.", {
         position: toast.POSITION.TOP_RIGHT,
         autoClose: 2000,
       });
     }
   };
 
+  // Handle product deletion
+  const handleDelete = async () => {
+    const confirmDelete = window.confirm("Are you sure you want to delete this product?");
+    if (!confirmDelete) return;
+
+    try {
+      const response = await deleteProduct(params._id).unwrap();
+      toast.success(`"${response.name}" has been deleted.`, {
+        position: toast.POSITION.TOP_RIGHT,
+        autoClose: 2000,
+      });
+      navigate("/admin/allproductslist");
+    } catch (err) {
+      console.error(err);
+      toast.error(err?.data?.message || "Delete failed. Try again.", {
+        position: toast.POSITION.TOP_RIGHT,
+        autoClose: 2000,
+      });
+    }
+  };
+
+  // Loading and error states
+  if (isLoadingProduct || isLoadingCategories) {
+    return <div className="container mx-auto p-6">Loading...</div>;
+  }
+
+  if (errorProduct || errorCategories) {
+    return (
+      <div className="container mx-auto p-6">
+        <p className="text-red-500">Failed to load product or categories.</p>
+      </div>
+    );
+  }
+
   return (
-    <>
-      <div className="container  xl:mx-[9rem] sm:mx-[0]">
-        <div className="flex flex-col md:flex-row">
-          <AdminMenu />
-          <div className="md:w-3/4 p-3">
-            <div className="h-12">Update / Delete Product</div>
+    <div className="container mx-auto p-6">
+      <div className="flex flex-col md:flex-row gap-6">
+        {/* Admin Menu */}
+        <AdminMenu />
 
-            {image && (
-              <div className="text-center">
-                <img
-                  src={image}
-                  alt="Uploaded Product"
-                  className="block mx-auto w-full h-[40%]"
-                />
-              </div>
-            )}
+        {/* Update/Delete Form */}
+        <div className="flex-1">
+          <h1 className="text-2xl font-bold mb-6 text-center text-white">Update / Delete Product</h1>
 
-            <div className="mb-3">
-              <label className="text-white  py-2 px-4 block w-full text-center rounded-lg cursor-pointer font-bold py-11">
-                {image ? image.name : "Upload image"}
-                <input
-                  type="file"
-                  name="image"
-                  accept="image/*"
-                  onChange={uploadFileHandler}
-                  className="text-white"
-                />
+          {/* Display Uploaded Image */}
+          {image && (
+            <div className="text-center mb-6">
+              <img
+                src={image}
+                alt="Uploaded Product"
+                className="mx-auto max-h-[200px] rounded-lg shadow"
+              />
+            </div>
+          )}
+
+          {/* Upload Image */}
+          <div className="mb-6">
+            <label className="border text-white px-4 block w-full text-center rounded-lg cursor-pointer font-bold py-4 bg-[#2E2D2D]">
+              {image ? "Change Image" : "Upload Image"}
+              <input
+                type="file"
+                name="image"
+                accept="image/*"
+                onChange={uploadFileHandler}
+                className="hidden"
+              />
+            </label>
+          </div>
+
+          {/* Form */}
+          <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Name */}
+            <div>
+              <label htmlFor="name" className="block mb-2 text-white">
+                Name
               </label>
+              <input
+                type="text"
+                id="name"
+                className="p-3 w-full border rounded-lg bg-[#101011] text-white"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                required
+              />
             </div>
 
-            <div className="p-3">
-              <div className="flex flex-wrap">
-                <div className="one">
-                  <label htmlFor="name">Name</label> <br />
-                  <input
-                    type="text"
-                    className="p-4 mb-3 w-[30rem] border rounded-lg bg-[#101011] text-white mr-[5rem]"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                  />
-                </div>
+            {/* Price */}
+            <div>
+              <label htmlFor="price" className="block mb-2 text-white">
+                Price
+              </label>
+              <input
+                type="number"
+                id="price"
+                className="p-3 w-full border rounded-lg bg-[#101011] text-white"
+                value={price}
+                onChange={(e) => setPrice(e.target.value)}
+                required
+              />
+            </div>
 
-                <div className="two">
-                  <label htmlFor="name block">Price</label> <br />
-                  <input
-                    type="number"
-                    className="p-4 mb-3 w-[30rem] border rounded-lg bg-[#101011] text-white "
-                    value={price}
-                    onChange={(e) => setPrice(e.target.value)}
-                  />
-                </div>
-              </div>
+            {/* Quantity */}
+            <div>
+              <label htmlFor="quantity" className="block mb-2 text-white">
+                Quantity
+              </label>
+              <input
+                type="number"
+                id="quantity"
+                min="1"
+                className="p-3 w-full border rounded-lg bg-[#101011] text-white"
+                value={quantity}
+                onChange={(e) => setQuantity(e.target.value)}
+                required
+              />
+            </div>
 
-              <div className="flex flex-wrap">
-                <div>
-                  <label htmlFor="name block">Quantity</label> <br />
-                  <input
-                    type="number"
-                    min="1"
-                    className="p-4 mb-3 w-[30rem] border rounded-lg bg-[#101011] text-white mr-[5rem]"
-                    value={quantity}
-                    onChange={(e) => setQuantity(e.target.value)}
-                  />
-                </div>
-                <div>
-                  <label htmlFor="name block">Brand</label> <br />
-                  <input
-                    type="text"
-                    className="p-4 mb-3 w-[30rem] border rounded-lg bg-[#101011] text-white "
-                    value={brand}
-                    onChange={(e) => setBrand(e.target.value)}
-                  />
-                </div>
-              </div>
+            {/* Brand */}
+            <div>
+              <label htmlFor="brand" className="block mb-2 text-white">
+                Brand
+              </label>
+              <input
+                type="text"
+                id="brand"
+                className="p-3 w-full border rounded-lg bg-[#101011] text-white"
+                value={brand}
+                onChange={(e) => setBrand(e.target.value)}
+                required
+              />
+            </div>
 
-              <label htmlFor="" className="my-5">
+            {/* Count In Stock */}
+            <div>
+              <label htmlFor="stock" className="block mb-2 text-white">
+                Count In Stock
+              </label>
+              <input
+                type="number"
+                id="stock"
+                className="p-3 w-full border rounded-lg bg-[#101011] text-white"
+                value={stock}
+                onChange={(e) => setStock(e.target.value)}
+                required
+              />
+            </div>
+
+            {/* Category */}
+            <div>
+              <label htmlFor="category" className="block mb-2 text-white">
+                Category
+              </label>
+              <select
+                id="category"
+                className="p-3 w-full border rounded-lg bg-[#101011] text-white"
+                value={category}
+                onChange={(e) => setCategory(e.target.value)}
+                required
+              >
+                <option value="" disabled>
+                  Choose Category
+                </option>
+                {categories.map((c) => (
+                  <option key={c._id} value={c._id}>
+                    {c.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* Description */}
+            <div className="md:col-span-2">
+              <label htmlFor="description" className="block mb-2 text-white">
                 Description
               </label>
               <textarea
-                type="text"
-                className="p-2 mb-3 bg-[#101011]  border rounded-lg w-[95%] text-white"
+                id="description"
+                className="p-3 w-full border rounded-lg bg-[#101011] text-white"
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
-              />
-
-              <div className="flex justify-between">
-                <div>
-                  <label htmlFor="name block">Count In Stock</label> <br />
-                  <input
-                    type="text"
-                    className="p-4 mb-3 w-[30rem] border rounded-lg bg-[#101011] text-white "
-                    value={stock}
-                    onChange={(e) => setStock(e.target.value)}
-                  />
-                </div>
-
-                <div>
-                  <label htmlFor="">Category</label> <br />
-                  <select
-                    placeholder="Choose Category"
-                    className="p-4 mb-3 w-[30rem] border rounded-lg bg-[#101011] text-white mr-[5rem]"
-                    onChange={(e) => setCategory(e.target.value)}
-                  >
-                    {categories?.map((c) => (
-                      <option key={c._id} value={c._id}>
-                        {c.name}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              </div>
-
-              <div className="">
-                <button
-                  onClick={handleSubmit}
-                  className="py-4 px-10 mt-5 rounded-lg text-lg font-bold  bg-green-600 mr-6"
-                >
-                  Update
-                </button>
-                <button
-                  onClick={handleDelete}
-                  className="py-4 px-10 mt-5 rounded-lg text-lg font-bold  bg-red-600"
-                >
-                  Delete
-                </button>
-              </div>
+                rows="4"
+                required
+              ></textarea>
             </div>
+          </form>
+
+          {/* Buttons */}
+          <div className="flex justify-between mt-6">
+            <button
+              onClick={handleSubmit}
+              disabled={isUpdating}
+              className="py-3 px-6 w-full md:w-1/2 bg-green-600 rounded-lg text-lg font-bold text-white hover:bg-green-700 transition duration-300"
+            >
+              {isUpdating ? "Updating..." : "Update"}
+            </button>
+            <button
+              onClick={handleDelete}
+              disabled={isDeleting}
+              className="py-3 px-6 w-full md:w-1/2 bg-red-600 rounded-lg text-lg font-bold text-white hover:bg-red-700 transition duration-300 mt-4 md:mt-0 md:ml-4"
+            >
+              {isDeleting ? "Deleting..." : "Delete"}
+            </button>
           </div>
         </div>
       </div>
-    </>
+    </div>
   );
 };
 

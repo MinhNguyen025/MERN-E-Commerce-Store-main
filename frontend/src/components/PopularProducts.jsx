@@ -29,7 +29,7 @@ const PopularProducts = () => {
           </div>
         ))}
       </div>
-      <div className="ml-80 my-8">
+      <div className="ml-40 my-8">
         <ProductCarousel />
       </div>
     </div>

@@ -223,20 +223,20 @@ const Navigation = () => {
           </>
         ) : (
           <>
-            {/* Hiển thị nút Login và Register khi chưa đăng nhập */}
+            {/*Login và Register*/}
             <div className="flex flex-col space-y-2">
             <Link
               to="/login"
               className="flex items-center text-white hover:text-red-500 text-sm font-medium"
             >
-              <FaSignInAlt className="mr-2" /> {/* Icon Login */}
+              <FaSignInAlt className="mr-2 " size={26}/>
               Login
             </Link>
             <Link
               to="/register"
               className="flex items-center text-white hover:text-red-500 text-sm font-medium"
             >
-              <FaUserPlus className="mr-2" /> {/* Icon Register */}
+              <FaUserPlus className="mr-2" size={26} /> 
               Register
             </Link>
             </div>

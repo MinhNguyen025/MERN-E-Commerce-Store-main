@@ -10,7 +10,7 @@ const Footer = () => {
   return (
     <>
       {isHomePage ? (
-        <footer className="bg-black text-white py-8 mt-auto">
+        <footer className="bg-black text-white py-8 mt-16">
           <div className="container mx-auto px-4 flex flex-col md:flex-row justify-between items-center">
             <div className="mb-4 md:mb-0 ml-20">
               <h4 className="text-lg font-semibold">About Us</h4>
@@ -45,7 +45,7 @@ const Footer = () => {
           </div>
         </footer>
       ) : (
-        <footer className="bg-black text-white py-2 text-center">
+        <footer className="bg-black text-white py-2 text-center mt-16">
           © 2024 Your Company. All rights reserved.
         </footer>
       )}

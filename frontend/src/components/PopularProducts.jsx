@@ -19,11 +19,10 @@ const PopularProducts = () => {
     
     <div className="px-[4rem] mt-[4rem]">
       <AdBanner />
-
-      <h1 className="text-4xl font-bold text-white mb-6 ml-40">
+      <h1 className="text-4xl font-bold text-white mb-6 ml-20">
         Popular Products
       </h1>
-      <div className="grid grid-cols-4 gap-7 ml-40 ">
+      <div className="grid grid-cols-4 gap-7 ml-20 ">
         {data.map((product) => (
           <div key={product._id}>
             <Product product={product} />
@@ -34,8 +33,6 @@ const PopularProducts = () => {
         <ProductCarousel />
       </div>
     </div>
-
-
   );
 };
 

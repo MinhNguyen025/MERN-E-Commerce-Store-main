@@ -22,32 +22,37 @@ const ProductCard = ({ p }) => {
       navigate("/login");
       return;
     }
-
-    // Thêm vào giỏ hàng ở frontend (Redux)
-    dispatch(
-      addToCart({
-        product: product._id,
-        qty,
-        name: product.name,
-        price: product.price,
-        image: product.image,
-        countInStock: product.countInStock,
-      })
-    );
+  
+    // Kiểm tra xem sản phẩm đã có trong giỏ hàng chưa
+    const existingCartItem = cartItems.find(item => item.product === product._id);
+  
+    let updatedCartItems;
+    if (existingCartItem) {
+      // Nếu đã có, tăng số lượng
+      updatedCartItems = cartItems.map(item =>
+        item.product === product._id ? { ...item, qty: item.qty + qty } : item
+      );
+      // Chỉ dispatch qty mới để reducer tự tăng
+      dispatch(addToCart({ product: product._id, qty }));
+    } else {
+      // Nếu chưa có, thêm sản phẩm mới vào giỏ hàng
+      updatedCartItems = [...cartItems, { product: product._id, qty: Number(qty) }];
+      dispatch(addToCart({ product: product._id, qty, name: product.name, price: product.price, image: product.image, countInStock: product.countInStock }));
+    }
+  
     toast.success("Item added successfully", {
       position: toast.POSITION.TOP_RIGHT,
       autoClose: 2000,
     });
-
+  
     // Cập nhật giỏ hàng lên database
-    const newCartItems = [...cartItems, { product: product._id, qty: Number(qty) }];
     try {
-      await updateUserCart({ userId: userInfo._id, cartItems: newCartItems }).unwrap();
+      await updateUserCart({ userId: userInfo._id, cartItems: updatedCartItems }).unwrap();
       // toast.success("Cart updated on server!");
     } catch (error) {
       toast.error(error?.data?.message || error.message);
     }
-  };
+  };  
 
   return (
     <div className="max-w-sm relative bg-[#1A1A1A] rounded-lg shadow dark:bg-gray-800 dark:border-gray-700 flex flex-col">

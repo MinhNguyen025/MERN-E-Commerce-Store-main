@@ -35,8 +35,6 @@ const createUser = asyncHandler(async (req, res) => {
   }
 });
 
-// File: controllers/userController.js
-
 const loginUser = asyncHandler(async (req, res) => {
   const { email, password } = req.body;
 
@@ -211,11 +209,11 @@ const getUserCart = asyncHandler(async (req, res) => {
   })));
 });
 
-// File: controllers/userController.js
 
 const updateUserCart = asyncHandler(async (req, res) => {
   const userId = req.params.id;
 
+  // Kiểm tra quyền truy cập
   if (!req.user || req.user._id.toString() !== userId.toString()) {
     res.status(403);
     throw new Error("Forbidden: You cannot update this user's cart");
@@ -223,7 +221,7 @@ const updateUserCart = asyncHandler(async (req, res) => {
 
   const { cartItems } = req.body;
 
-  console.log("Received cartItems:", cartItems); // Thêm log
+  console.log("Received cartItems:", cartItems); // Log nhận được
 
   const user = await User.findById(userId);
 
@@ -232,7 +230,7 @@ const updateUserCart = asyncHandler(async (req, res) => {
     throw new Error("User not found");
   }
 
-  // Kiểm tra từng sản phẩm trong cartItems để đảm bảo sản phẩm tồn tại
+  // Kiểm tra sự tồn tại của từng sản phẩm trong giỏ hàng
   for (let item of cartItems) {
     const productExists = await Product.findById(item.product);
     if (!productExists) {
@@ -241,30 +239,32 @@ const updateUserCart = asyncHandler(async (req, res) => {
     }
   }
 
-  // Chuẩn bị dữ liệu để cập nhật
-  const updatedCart = cartItems.map(item => ({
-    product: item.product,
-    qty: item.qty,
-  }));
+  // Hợp nhất các mục giỏ hàng trùng lặp bằng cách tăng số lượng
+  const mergedCartItems = cartItems.reduce((acc, item) => {
+    const existingItem = acc.find(cartItem => cartItem.product.toString() === item.product.toString());
+    if (existingItem) {
+      existingItem.qty += item.qty;
+    } else {
+      acc.push({ product: item.product, qty: item.qty });
+    }
+    return acc;
+  }, []);
 
-  console.log("Updating cart with:", updatedCart); // Thêm log
+  console.log("Merged cartItems:", mergedCartItems); // Log hợp nhất
 
-  // Sử dụng findByIdAndUpdate để cập nhật giỏ hàng một cách nguyên tử
-  const updatedUser = await User.findByIdAndUpdate(
-    userId,
-    { cart: updatedCart },
-    { new: true } // Trả về tài liệu mới sau khi cập nhật
-  ).populate('cart.product', 'name price image countInStock');
+  // Cập nhật giỏ hàng vào cơ sở dữ liệu
+  user.cart = mergedCartItems;
 
-  if (!updatedUser) {
-    res.status(404);
-    throw new Error("User not found after update");
-  }
+  // Lưu người dùng và sau đó populate giỏ hàng
+  const savedUser = await user.save();
 
-  console.log("Updated user cart:", updatedUser.cart); // Thêm log
+  // Populate giỏ hàng
+  await savedUser.populate('cart.product', 'name price image countInStock');
+
+  console.log("Updated user cart:", savedUser.cart); // Log cập nhật
 
   // Trả về giỏ hàng đã được populate đầy đủ thông tin
-  res.json(updatedUser.cart.map(item => ({
+  res.json(savedUser.cart.map(item => ({
     _id: item.product._id,
     name: item.product.name,
     price: item.product.price,
@@ -273,8 +273,6 @@ const updateUserCart = asyncHandler(async (req, res) => {
     countInStock: item.product.countInStock
   })));
 });
-
-
 export {
   createUser,
   loginUser,

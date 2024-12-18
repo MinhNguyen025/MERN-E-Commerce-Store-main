@@ -1,4 +1,4 @@
-// File: src/redux/features/cart/cartSlice.js
+// src/redux/features/cart/cartSlice.js
 
 import { createSlice } from "@reduxjs/toolkit";
 import { updateCart } from "../../../Utils/cartUtils";
@@ -16,10 +16,12 @@ const cartSlice = createSlice({
       const existItem = state.cartItems.find((x) => x.product === product);
 
       if (existItem) {
+        // Tăng số lượng hiện tại với số lượng mới
         state.cartItems = state.cartItems.map((x) =>
-          x.product === existItem.product ? { ...x, qty } : x
+          x.product === existItem.product ? { ...x, qty: x.qty + qty } : x
         );
       } else {
+        // Thêm sản phẩm mới vào giỏ hàng
         state.cartItems = [...state.cartItems, { product, qty, name, price, image, countInStock }];
       }
       return updateCart(state);
@@ -51,9 +53,10 @@ const cartSlice = createSlice({
       state.cartItems = [];
       state.shippingAddress = {};
       state.paymentMethod = "PayPal";
-      localStorage.removeItem("cartItems");
-      localStorage.removeItem("shippingAddress");
-      localStorage.removeItem("paymentMethod");
+      localStorage.removeItem("cart");
+      // localStorage.removeItem("cartItems");
+      // localStorage.removeItem("shippingAddress");
+      // localStorage.removeItem("paymentMethod");
     },
 
     setCartItemsFromDB: (state, action) => {

@@ -1,6 +1,5 @@
 // src/pages/Products/ProductDetails.js
-
-import { useState } from "react";
+import React, { useState } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
@@ -8,22 +7,16 @@ import {
   useGetProductDetailsQuery,
   useCreateReviewMutation,
 } from "../../redux/api/productApiSlice";
-import { useUpdateUserCartMutation} from "../../redux/api/usersApiSlice"; 
+import { useUpdateUserCartMutation } from "../../redux/api/usersApiSlice";
 import Loader from "../../components/Loader";
 import Message from "../../components/Message";
-import {
-  FaBox,
-  FaClock,
-  FaShoppingCart,
-  FaStar,
-  FaStore,
-} from "react-icons/fa";
+import { FaBox, FaClock, FaShoppingCart, FaStar, FaStore } from "react-icons/fa";
 import moment from "moment";
 import HeartIcon from "./HeartIcon";
 import Ratings from "./Ratings";
 import ProductTabs from "./ProductTabs";
 import { addToCart } from "../../redux/features/cart/cartSlice";
-// import Breadcrumb from "../../components/Breadcrumb"; // đang comment lại phần breadcrumb nếu không dùng
+import ProductDetailBreadcrumb from "../../components/ProductDetailBreadcrumb"; // Import breadcrumb riêng cho ProductDetail
 
 const ProductDetails = () => {
   const { id: productId } = useParams();
@@ -59,38 +52,40 @@ const ProductDetails = () => {
       return;
     }
   
-    // Kiểm tra xem sản phẩm đã có trong giỏ hàng chưa
     const existingCartItem = cartItems.find(item => item.product === product._id);
-  
     let updatedCartItems;
     if (existingCartItem) {
-      // Nếu đã có, tăng số lượng
       updatedCartItems = cartItems.map(item =>
         item.product === product._id ? { ...item, qty: item.qty + qty } : item
       );
-      // Chỉ dispatch qty mới để reducer tự tăng
       dispatch(addToCart({ product: product._id, qty }));
     } else {
-      // Nếu chưa có, thêm sản phẩm mới vào giỏ hàng
       updatedCartItems = [...cartItems, { product: product._id, qty: Number(qty) }];
-      dispatch(addToCart({ product: product._id, qty, name: product.name, price: product.price, image: product.image, countInStock: product.countInStock }));
+      dispatch(addToCart({ 
+        product: product._id, 
+        qty, 
+        name: product.name, 
+        price: product.price, 
+        image: product.image, 
+        countInStock: product.countInStock 
+      }));
     }
   
     toast.success("Added to cart!");
   
-    // Gửi cập nhật lên server
     try {
       await updateUserCart({ userId: userInfo._id, cartItems: updatedCartItems }).unwrap();
-      // toast.success("Cart updated on server!");
       navigate("/cart");
     } catch (error) {
       toast.error(error?.data?.message || error.message);
     }
   };
 
-
   return (
     <>
+      {/* Hiển thị breadcrumb riêng */}
+      {product && <ProductDetailBreadcrumb productName={product.name} />}
+
       {isLoading ? (
         <Loader />
       ) : error ? (
@@ -98,7 +93,7 @@ const ProductDetails = () => {
       ) : (
         <>
           <div className="flex flex-wrap relative items-start mt-[2rem] ml-[10rem] mr-4 gap-8">
-            <div  className="relative">
+            <div className="relative">
               <img
                 src={product.image}
                 alt={product.name}
@@ -112,7 +107,6 @@ const ProductDetails = () => {
               <p className="my-4 xl:w-[35rem] lg:w-[35rem] md:w-[30rem] text-[#B0B0B0]">
                 {product.description}
               </p>
-
               <p className="text-5xl my-4 font-extrabold">$ {product.price}</p>
 
               <div className="flex items-center justify-between w-[20rem]">
@@ -148,7 +142,7 @@ const ProductDetails = () => {
               <div className="flex justify-between flex-wrap">
                 <Ratings
                   value={product.rating}
-                  text={`${product.numReviews} reviews`}
+                  // text={`${product.numReviews} reviews`}
                 />
 
                 {product.countInStock > 0 && (

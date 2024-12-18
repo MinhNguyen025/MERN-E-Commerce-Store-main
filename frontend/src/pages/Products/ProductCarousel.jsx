@@ -10,7 +10,7 @@ const ProductCarousel = () => {
   const settings = {
     dots: false,
     infinite: true,
-    speed: 5000,
+    speed: 500,
     slidesToShow: 1,
     slidesToScroll: 1,
     arrows: true,
@@ -34,7 +34,7 @@ const ProductCarousel = () => {
               <img
                 src={image}
                 alt={name}
-                className="w-full object-contain h-[30rem]"
+                className="w-[50rem] rounded-lg object-cover h-[35rem]"
               />
             </div>
           ))}

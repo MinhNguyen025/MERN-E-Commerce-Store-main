@@ -13,7 +13,7 @@ const AdBanner = () => {
       <div className="overflow-hidden w-screen h-40 bg-gray-200 mt-4 mb-8">
         <div className="flex animate-scroll">
           {/* Lặp lại mảng ảnh hai lần để tạo hiệu ứng trượt liên tục */}
-          {[...images, ...images, ...images].map((img, index) => (
+          {[...images, ...images].map((img, index) => (
             <img
               key={index}
               src={img}

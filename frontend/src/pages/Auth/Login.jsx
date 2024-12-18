@@ -7,6 +7,7 @@ import { useLoginMutation, useGetUserCartQuery } from "../../redux/api/usersApiS
 import { setCredentials } from "../../redux/features/auth/authSlice";
 import { toast } from "react-toastify";
 import { setCartItemsFromDB } from "../../redux/features/cart/cartSlice";
+import VerticalAdBanner from "../../components/VerticalAdBanner"; 
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -91,7 +92,7 @@ const Login = () => {
     <div>
       <section className="pl-[10rem] flex items-center justify-between min-h-screen">
         {/* Form Sign In */}
-        <div className="w-full lg:w-1/2 mr-[4rem] mt-[5rem]">
+        <div className="w-full lg:w-1/2 mr-[4rem] mt-[2rem]">
           <h1 className="text-2xl font-semibold mb-4 text-white">Sign In</h1>
 
           <form onSubmit={submitHandler} className="container max-w-md">
@@ -158,13 +159,8 @@ const Login = () => {
           </div>
         </div>
 
-        {/* Login Image */}
-        <div className="hidden lg:flex lg:items-center lg:justify-center lg:w-1/2">
-          <img
-            src="https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1964&q=80"
-            alt="Login"
-            className="rounded-lg h-[80%] w-[80%] object-cover"
-          />
+        <div className="hidden lg:block lg:w-1/2">
+          <VerticalAdBanner />
         </div>
       </section>
     </div>

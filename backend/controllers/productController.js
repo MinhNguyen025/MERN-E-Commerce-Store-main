@@ -1,5 +1,6 @@
 import asyncHandler from "../middlewares/asyncHandler.js";
 import Product from "../models/productModel.js";
+import mongoose from 'mongoose';
 
 const addProduct = asyncHandler(async (req, res) => {
   try {
@@ -118,36 +119,55 @@ const fetchProductById = asyncHandler(async (req, res) => {
   }
 });
 
+// Utility Function to Escape Regex Characters
+const escapeRegex = (string) => {
+  return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); // $& là toàn bộ match
+};
+
 const fetchAllProducts = asyncHandler(async (req, res) => {
   try {
-    const page = parseInt(req.query.page) || 1; // Trang hiện tại
-    const limit = parseInt(req.query.limit) || 5; // Số sản phẩm mỗi trang
-    const keyword = req.query.keyword
-    ? {
+    const { page = 1, limit = 5, keyword = "" } = req.query;
+
+    const pageNumber = parseInt(page, 10);
+    const limitNumber = parseInt(limit, 10);
+
+    // Xây dựng đối tượng tìm kiếm
+    let searchCriteria = {};
+
+    if (keyword.trim()) {
+      searchCriteria = {
         name: {
-          $regex: req.query.keyword,
-          $options: "i", // Không phân biệt chữ hoa chữ thường
+          $regex: escapeRegex(keyword),
+          $options: "i", // Không phân biệt hoa thường
         },
-      }
-    : {};
+      };
+    }
 
-    const skip = (page - 1) * limit; // Số sản phẩm cần bỏ qua
+    console.log("Search Criteria:", searchCriteria);
 
-    const count = await Product.countDocuments({ ...keyword }); // Tổng số sản phẩm phù hợp
-    const products = await Product.find({ ...keyword })
+    // Tính toán số lượng sản phẩm phù hợp
+    const count = await Product.countDocuments(searchCriteria);
+
+    // Tính tổng số trang
+    const totalPages = Math.ceil(count / limitNumber);
+
+    // Lấy danh sách sản phẩm với phân trang
+    const products = await Product.find(searchCriteria)
       .populate("category")
       .sort({ createdAt: -1 })
-      .skip(skip)
-      .limit(limit);
+      .skip((pageNumber - 1) * limitNumber)
+      .limit(limitNumber);
+
+    console.log(`Fetched ${products.length} products on page ${pageNumber}`);
 
     res.json({
       products,
-      page,
-      totalPages: Math.ceil(count / limit),
+      page: pageNumber,
+      totalPages,
       totalProducts: count,
     });
   } catch (error) {
-    console.error(error);
+    console.error("Error fetching all products:", error.message);
     res.status(500).json({ error: "Server Error" });
   }
 });

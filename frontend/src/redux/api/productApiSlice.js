@@ -20,9 +20,9 @@ export const productApiSlice = apiSlice.injectEndpoints({
     }),
 
     allProducts: builder.query({
-      query: ({ page, limit, keyword }) => ({
+      query: ({ page = 1, limit = 5, keyword = "" }) => ({
         url: `${PRODUCT_URL}/allproducts`,
-        params: { page, limit, keyword }, // Thêm keyword vào params
+        params: { page, limit, keyword },
       }),
       keepUnusedDataFor: 0, // Cache sẽ hết hạn ngay lập tức
       providesTags: ['Products'], // Thêm nếu cần

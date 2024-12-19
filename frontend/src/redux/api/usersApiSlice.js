@@ -1,5 +1,3 @@
-// File: src/redux/api/usersApiSlice.js
-
 import { apiSlice } from "./apiSlice";
 import { USERS_URL } from "../constants";
 
@@ -85,6 +83,12 @@ export const userApiSlice = apiSlice.injectEndpoints({
       }),
       invalidatesTags: ["User"],
     }),
+
+    getMonthlyUserRegistrations: builder.query({
+      query: () => `${USERS_URL}/monthly-registrations`,
+      providesTags: ["User"],
+      keepUnusedDataFor: 300, // 5 minutes
+    }),
   }),
 });
 
@@ -98,5 +102,6 @@ export const {
   useUpdateUserMutation,
   useGetUserDetailsQuery,
   useGetUserCartQuery, 
-  useUpdateUserCartMutation
+  useUpdateUserCartMutation,
+  useGetMonthlyUserRegistrationsQuery,
 } = userApiSlice;

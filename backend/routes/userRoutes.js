@@ -11,10 +11,14 @@ import {
   updateUserById,
   getUserCart,
   updateUserCart,
+  getMonthlyUserRegistrations,
 } from "../controllers/userController.js";
 import { authenticate, authorizeAdmin } from "../middlewares/authMiddleware.js";
 
 const router = express.Router();
+
+router.get("/monthly-registrations", authenticate, authorizeAdmin, getMonthlyUserRegistrations);
+
 
 router
   .route("/")
@@ -41,4 +45,4 @@ router.route("/:id/cart")
   .get(authenticate, getUserCart)
   .post(authenticate, updateUserCart);
 
-export default router;
+  export default router;

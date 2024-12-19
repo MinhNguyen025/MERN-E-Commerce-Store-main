@@ -43,6 +43,7 @@
     "otp-generator": "^4.0.1",
     "rc-slider": "^11.1.7",
     "react-datepicker": "^7.5.0",
+    "react-spinners": "^0.15.0",
     "rollup": "^4.28.1",
     "vite": "^6.0.3"
   }

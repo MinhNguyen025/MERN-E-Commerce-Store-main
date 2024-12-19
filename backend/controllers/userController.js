@@ -294,6 +294,33 @@ const updateUserCart = asyncHandler(async (req, res) => {
     countInStock: item.product.countInStock
   })));
 });
+
+const getMonthlyUserRegistrations = asyncHandler(async (req, res) => {
+  try {
+    const registrations = await User.aggregate([
+      {
+        $group: {
+          _id: {
+            year: { $year: "$createdAt" },
+            month: { $month: "$createdAt" },
+          },
+          total: { $sum: 1 },
+        },
+      },
+      {
+        $sort: { "_id.year": 1, "_id.month": 1 },
+      },
+    ]);
+
+    console.log("Monthly Registrations:", registrations); // Thêm dòng này để log
+
+    res.json(registrations);
+  } catch (error) {
+    console.error("Error in getMonthlyUserRegistrations:", error);
+    res.status(500).json({ message: "Server Error" });
+  }
+});
+
 export {
   createUser,
   loginUser,
@@ -306,4 +333,5 @@ export {
   updateUserById,
   updateUserCart,
   getUserCart,
+  getMonthlyUserRegistrations,
 };

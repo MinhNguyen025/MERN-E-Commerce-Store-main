@@ -33,9 +33,18 @@ export const userApiSlice = apiSlice.injectEndpoints({
       }),
     }),
     getUsers: builder.query({
-      query: () => ({
-        url: USERS_URL,
-      }),
+      query: ({ page = 1, limit = 5, search = "" }) => {
+        const params = new URLSearchParams({
+          page,
+          limit,
+        });
+
+        if (search) {
+          params.append("search", search);
+        }
+
+        return `${USERS_URL}?${params.toString()}`;
+      },
       providesTags: ["User"],
       keepUnusedDataFor: 5,
     }),
@@ -44,6 +53,7 @@ export const userApiSlice = apiSlice.injectEndpoints({
         url: `${USERS_URL}/${userId}`,
         method: "DELETE",
       }),
+      invalidatesTags: ["User"],
     }),
     getUserDetails: builder.query({
       query: (id) => ({
@@ -52,10 +62,10 @@ export const userApiSlice = apiSlice.injectEndpoints({
       keepUnusedDataFor: 5,
     }),
     updateUser: builder.mutation({
-      query: (data) => ({
-        url: `${USERS_URL}/${data.userId}`,
+      query: ({ userId, username, email }) => ({
+        url: `${USERS_URL}/${userId}`,
         method: "PUT",
-        body: data,
+        body: { username, email },
       }),
       invalidatesTags: ["User"],
     }),

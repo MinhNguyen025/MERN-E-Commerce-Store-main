@@ -2,6 +2,7 @@ import Order from "../models/orderModel.js";
 import Product from "../models/productModel.js";
 import sendEmail from "../utils/emailService.js"; // Import hàm gửi email
 import User from "../models/userModel.js";
+import mongoose from 'mongoose';
 
 // Utility Function
 function calcPrices(orderItems) {
@@ -15,7 +16,7 @@ function calcPrices(orderItems) {
   const taxPrice = (itemsPrice * taxRate).toFixed(2);
 
   const totalPrice = (
-    itemsPrice +
+    itemsPrice + 
     shippingPrice +
     parseFloat(taxPrice)
   ).toFixed(2);
@@ -141,29 +142,77 @@ const createOrder = async (req, res) => {
   }
 };
 
-
 const getAllOrders = async (req, res) => {
   try {
-    const { page = 1, limit = 5, search = "" } = req.query;
+    const { page = 1, limit = 5, search = "", startDate, endDate } = req.query;
 
-    // Tạo query để tìm kiếm theo ID (hoặc bạn có thể mở rộng để tìm kiếm theo nhiều trường)
-    const query = search
-      ? { _id: { $regex: search, $options: "i" } } // Tìm kiếm không phân biệt hoa thường
-      : {};
+    const match = {};
 
-    // Lấy danh sách đơn hàng dựa trên query
-    const orders = await Order.find(query)
-      .skip((page - 1) * limit)
-      .limit(parseInt(limit));
+    // Tìm kiếm theo Order ID
+    if (search) {
+      if (mongoose.Types.ObjectId.isValid(search)) {
+        // Tìm kiếm chính xác nếu Order ID hợp lệ
+        match._id = new mongoose.Types.ObjectId(search);
+      } else {
+        // Tìm kiếm phần mềm nếu Order ID chưa đầy đủ
+        match.$expr = {
+          $regexMatch: {
+            input: { $toString: '$_id' },
+            regex: `^${search}`,
+            options: 'i' // Không phân biệt hoa thường
+          }
+        };
+      }
+    }
 
-    const total = await Order.countDocuments(query);
+    // Lọc theo khoảng ngày nếu có
+    if (startDate || endDate) {
+      match.createdAt = {};
+      if (startDate) {
+        const start = new Date(startDate);
+        match.createdAt.$gte = start;
+      }
+      if (endDate) {
+        const end = new Date(endDate);
+        // Đặt thời gian cuối ngày để bao gồm cả ngày endDate
+        end.setHours(23, 59, 59, 999);
+        match.createdAt.$lte = end;
+      }
+    }
+
+    // Xây dựng pipeline cho aggregation
+    const pipeline = [];
+
+    if (Object.keys(match).length > 0) {
+      pipeline.push({ $match: match });
+    }
+
+    pipeline.push(
+      {
+        $lookup: {
+          from: 'users', // Tên collection của User
+          localField: 'user',
+          foreignField: '_id',
+          as: 'user',
+        },
+      },
+      { $unwind: "$user" }, // Giải nén mảng user
+      { $sort: { createdAt: -1 } }, // Sắp xếp theo ngày tạo giảm dần
+      { $skip: (page - 1) * limit }, // Bỏ qua các trang trước
+      { $limit: parseInt(limit) } // Giới hạn số đơn hàng mỗi trang
+    );
+
+    const orders = await Order.aggregate(pipeline);
+
+    // Đếm tổng số đơn hàng phù hợp
+    const total = await Order.countDocuments(match);
 
     res.json({ orders, total, pages: Math.ceil(total / limit) });
   } catch (error) {
+    console.error("Lỗi khi lấy danh sách đơn hàng:", error.message);
     res.status(500).json({ error: error.message });
   }
 };
-
 
 const getUserOrders = async (req, res) => {
   try {

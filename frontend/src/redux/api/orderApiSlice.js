@@ -39,10 +39,24 @@ export const orderApiSlice = apiSlice.injectEndpoints({
     }),
 
     getOrders: builder.query({
-      query: ({ page = 1, limit = 5 }) => ({
+      query: ({ page = 1, limit = 5, search="", startDate ="", endDate=""}) => {
         // Truyền tham số page và limit qua URL
-        url: `${ORDERS_URL}?page=${page}&limit=${limit}`,
-      }),
+        const params = new URLSearchParams({ page, limit });
+
+        if (search) {
+          params.append("search", search);
+        }
+
+        if (startDate) {  
+          params.append("startDate", startDate);
+        }
+
+        if (endDate) {
+          params.append("endDate", endDate);
+        }
+
+        return `${ORDERS_URL}?${params.toString()}`;
+      },
     }),
     
 
@@ -71,7 +85,6 @@ export const {
   useGetTotalOrdersQuery,
   useGetTotalSalesQuery,
   useGetTotalSalesByDateQuery,
-  // ------------------
   useCreateOrderMutation,
   useGetOrderDetailsQuery,
   usePayOrderMutation,

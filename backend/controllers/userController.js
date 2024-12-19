@@ -87,8 +87,29 @@ const logoutCurrentUser = asyncHandler(async (req, res) => {
 });
 
 const getAllUsers = asyncHandler(async (req, res) => {
-  const users = await User.find({});
-  res.json(users);
+  const { search = "", page = 1, limit = 5 } = req.query;
+
+  const query = {
+    $or: [
+      { username: { $regex: search, $options: "i" } },
+      { email: { $regex: search, $options: "i" } },
+    ],
+  };
+
+  const skip = (Number(page) - 1) * Number(limit);
+  const total = await User.countDocuments(query);
+  const users = await User.find(query)
+    .select("-password")
+    .limit(Number(limit))
+    .skip(skip);
+
+  const pages = Math.ceil(total / Number(limit));
+
+  res.json({
+    users,
+    pages,
+    currentPage: Number(page),
+  });
 });
 
 const getCurrentUserProfile = asyncHandler(async (req, res) => {

@@ -54,15 +54,34 @@ const removeCategory = asyncHandler(async (req, res) => {
   }
 });
 
+// controllers/categoryController.js
+
 const listCategory = asyncHandler(async (req, res) => {
   try {
-    const all = await Category.find({});
-    res.json(all);
+    const page = parseInt(req.query.page) || 1; // Default to page 1
+    const limit = parseInt(req.query.limit) || 10; // Default to 10 items per page
+    const skip = (page - 1) * limit;
+
+    const total = await Category.countDocuments({});
+    const categories = await Category.find({})
+      .sort({ name: 1 }) // Optional: Sort categories by name
+      .skip(skip)
+      .limit(limit);
+
+    res.json({
+      categories,
+      pagination: {
+        total,
+        page,
+        pages: Math.ceil(total / limit),
+        limit,
+      },
+    });
   } catch (error) {
     console.log(error);
-    return res.status(400).json(error.message);
+    return res.status(400).json({ error: error.message });
   }
-});
+});  
 
 const readCategory = asyncHandler(async (req, res) => {
   try {

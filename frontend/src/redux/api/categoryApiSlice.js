@@ -9,6 +9,7 @@ export const categoryApiSlice = apiSlice.injectEndpoints({
         method: "POST",
         body: newCategory,
       }),
+      invalidatesTags: ['Categories'],
     }),
 
     updateCategory: builder.mutation({
@@ -17,6 +18,7 @@ export const categoryApiSlice = apiSlice.injectEndpoints({
         method: "PUT",
         body: updatedCategory,
       }),
+      invalidatesTags: ['Categories'],
     }),
 
     deleteCategory: builder.mutation({
@@ -24,10 +26,16 @@ export const categoryApiSlice = apiSlice.injectEndpoints({
         url: `${CATEGORY_URL}/${categoryId}`,
         method: "DELETE",
       }),
+      invalidatesTags: ['Categories'],
     }),
 
     fetchCategories: builder.query({
-      query: () => `${CATEGORY_URL}/categories`,
+      query: ({ page = 1, limit = 10 }) => `${CATEGORY_URL}/categories?page=${page}&limit=${limit}`,
+      transformResponse: (response) => ({
+        categories: response.categories,
+        pagination: response.pagination,
+      }),
+      providesTags: ['Categories'],
     }),
   }),
 });

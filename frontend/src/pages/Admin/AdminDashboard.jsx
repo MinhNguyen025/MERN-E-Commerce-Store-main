@@ -19,7 +19,7 @@ const AdminDashboard = () => {
 
   const [state, setState] = useState({
     options: {
-      chart: {
+      chart: { 
         type: "line",
       },
       tooltip: {

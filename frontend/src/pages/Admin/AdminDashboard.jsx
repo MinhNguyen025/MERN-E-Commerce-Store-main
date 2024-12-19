@@ -8,7 +8,7 @@ import {
 
 import { useState, useEffect } from "react";
 import AdminMenu from "./AdminMenu";
-import OrderList from "./OrderList";
+// import OrderList from "./OrderList";
 import Loader from "../../components/Loader";
 
 const AdminDashboard = () => {
@@ -139,9 +139,9 @@ const AdminDashboard = () => {
           />
         </div>
 
-        <div className="mt-[4rem]">
+        {/* <div className="mt-[4rem]">
           <OrderList />
-        </div>
+        </div> */}
       </section>
     </>
   );

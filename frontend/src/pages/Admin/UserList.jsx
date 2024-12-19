@@ -129,10 +129,10 @@ const UserList = () => {
   const totalPages = searchTerm ? 1 : data?.pages || 1; // Điều chỉnh tổng số trang khi tìm kiếm
 
   return (
-    <div className="p-4 ml-40">
+    <div className="p-4 ml-32">
       <h1 className="text-2xl font-semibold mb-4">Users</h1>
       {/* Thanh Tìm Kiếm */}
-      <form onSubmit={handleSearch} className="mb-4 flex flex-wrap items-center gap-4">
+      <form onSubmit={handleSearch} className="mb-4 flex flex-wrap items-center gap-4 ml-20">
         <div className="flex flex-col">
           <label htmlFor="searchTerm" className="mb-1">Search</label>
           <input

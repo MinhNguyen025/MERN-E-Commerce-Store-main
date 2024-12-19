@@ -19,6 +19,14 @@ const PopularProducts = () => {
     
     <div className="px-[4rem] mt-[4rem]">
       <AdBanner />
+      <div 
+      style={{background: "#1A1A1A"}}
+      className="ml-24 my-8 p-4 rounded-lg w-[90%]">
+        <h1 className="text-4xl text-center font-bold text-white mb-6 ml-20">
+          Best sellers in this week!
+        </h1>
+        <ProductCarousel className="relative"/>
+      </div>
       <h1 className="text-4xl font-bold text-white mb-6 ml-20">
         Popular Products
       </h1>
@@ -28,9 +36,6 @@ const PopularProducts = () => {
             <Product product={product} />
           </div>
         ))}
-      </div>
-      <div className="ml-40 my-8">
-        <ProductCarousel />
       </div>
     </div>
   );

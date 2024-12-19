@@ -37,6 +37,7 @@ export const userApiSlice = apiSlice.injectEndpoints({
         const params = new URLSearchParams({
           page,
           limit,
+
         });
 
         if (search) {

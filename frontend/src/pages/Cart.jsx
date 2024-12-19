@@ -112,8 +112,8 @@ const Cart = () => {
               <h1 className="text-2xl font-semibold mb-4">Shopping Cart</h1>
 
               {cartItems.map((item) => (
-                <div key={item.product} className="flex items-center mb-[1rem] pb-2">
-                  <div className="w-[5rem] h-[5rem]">
+                <div key={item.product} className="flex items-center border mb-[1rem]">
+                  <div className="w-[6rem] h-[6rem]">
                     <img
                       src={item.image}
                       alt={item.name}
@@ -159,12 +159,15 @@ const Cart = () => {
                 </div>
               ))}
 
-              <div className="mt-8 w-[40rem] ml-60">
-                <div className="p-4 rounded-lg">
+              <div className="flex justify-end mt-8">
+                <div className="w-[40rem] p-4 rounded-lg text-right">
                   <h2 className="text-xl font-semibold mb-2">
                     Items ({cartItems.reduce((acc, item) => acc + item.qty, 0)})
                   </h2>
-
+                  <div>
+                    <h2>Shipping: $0</h2>
+                    
+                  </div>
                   <div className="text-2xl font-bold">
                     ${" "}
                     {cartItems
@@ -173,7 +176,7 @@ const Cart = () => {
                   </div>
 
                   <button
-                    className="bg-red-500 mt-4 py-2 px-4 rounded-full text-lg w-full"
+                    className="bg-red-500 mt-4 py-2 px-4 rounded-full text-lg w-60"
                     disabled={cartItems.length === 0}
                     onClick={checkoutHandler}
                   >

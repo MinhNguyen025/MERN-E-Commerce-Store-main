@@ -14,12 +14,12 @@ const Header = () => {
       <div className="container mx-auto flex items-center justify-between">
         {/* Logo */}
         <Link to="/" className="flex items-center space-x-2 ml-20">
-          <img src={logo} alt="Logo" className="h-8 w-8" />
+          <img src={logo} alt="Logo" className="h-12 w-12 items-center"/>
           <span className="text-2xl font-bold ">Innovate your life!</span>
         </Link>
 
         {/* Favorites and Cart */}
-        {!userInfo?.isAdmin && ( // Chỉ hiển thị khi không phải admin
+        {!userInfo?.isAdmin && userInfo&&  (
           <div className="flex items-center space-x-6 mr-60">
             {/* Favorites */}
             <Link to="/favorite" className="relative flex items-center">

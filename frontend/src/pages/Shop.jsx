@@ -1,5 +1,3 @@
-// src/pages/Shop.js
-
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
@@ -16,6 +14,8 @@ import ProductCard from "./Products/ProductCard";
 import { useUpdateUserCartMutation } from "../redux/api/usersApiSlice";
 import { addToCart } from "../redux/features/cart/cartSlice";
 import { toast } from "react-toastify";
+import Slider from "rc-slider";
+import "rc-slider/assets/index.css";
 
 const Shop = () => {
   const dispatch = useDispatch();
@@ -23,7 +23,12 @@ const Shop = () => {
   const { categories, products, checked, radio, checkedBrands } = useSelector((state) => state.shop);
   const { userInfo } = useSelector((state) => state.auth);
   const { cartItems } = useSelector((state) => state.cart);
-
+  const [priceRange, setPriceRange] = useState([0, 5000]); // Giá từ 0 đến 50 triệu
+  const handlePriceRangeChange = (value) => {
+    setPriceRange(value);
+  };
+  
+ 
   // Fetch categories
   const categoriesQuery = useFetchCategoriesQuery();
 
@@ -38,18 +43,39 @@ const Shop = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 8;
 
-  // Filtered products query
-  const filteredProductsQuery = useGetFilteredProductsQuery({
-    checked,
-    radio,
-    brands: checkedBrands,
-  });
-
   useEffect(() => {
     if (!categoriesQuery.isLoading && categoriesQuery.data) {
       dispatch(setCategories(categoriesQuery.data));
     }
   }, [categoriesQuery.data, categoriesQuery.isLoading, dispatch]);
+
+ // Filtered products query
+ const filteredProductsQuery = useGetFilteredProductsQuery({
+  checked,
+  radio,
+  brands: checkedBrands,
+});
+
+useEffect(() => {
+  if (filteredProductsQuery.data) {
+    let filteredProducts = filteredProductsQuery.data;
+
+    if (searchTerm) {
+      filteredProducts = filteredProducts.filter((product) =>
+        product.name.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+    }
+
+    // Lọc theo khoảng giá
+    filteredProducts = filteredProducts.filter(
+      (product) => product.price >= priceRange[0] && product.price <= priceRange[1]
+    );
+
+    dispatch(setProducts(filteredProducts));
+  }
+}, [filteredProductsQuery.data, searchTerm, priceRange, dispatch]);
+
+
 
   const displayedCategories = showAllCategories ? categories : categories.slice(0, 9);
 
@@ -201,7 +227,8 @@ const Shop = () => {
           <h1 className="text-3xl font-bold ml-20">Shop</h1>
           <form
             onSubmit={(e) => { e.preventDefault(); }}
-            className="flex items-center bg-gray-800 p-2 rounded-lg"
+            style={{ backgroundColor: "#151515" }}
+            className="flex items-center p-2 rounded-lg"
           >
             <input
               type="text"
@@ -287,23 +314,36 @@ const Shop = () => {
               )}
             </div>
 
-            {/* Filter by Price */}
-            <div className="mt-4">
-              <label
-                htmlFor="price"
-                className="block mb-2 text-sm font-medium text-white"
-              >
-                Filter by Price
-              </label>
-              <input
-                type="number"
-                id="price"
-                value={priceFilter}
-                onChange={handlePriceChange}
-                className="w-full p-2 text-black rounded"
-                placeholder="Enter price..."
-              />
-            </div>
+{/* Filter by Price Range */}
+<div className="mt-4">
+  <h2 className="h4 text-center py-2 bg-black rounded-full">Filter by Price Range</h2>
+  <div className="p-5">
+    <Slider
+      range
+      min={0}
+      max={5000} // Giới hạn tối đa là 5000$
+      step={10} // Bước nhảy là 10$
+      value={priceRange}
+      onChange={handlePriceRangeChange}
+      trackStyle={[{ backgroundColor: "#FF0000" }]} // Màu vùng đã chọn
+      handleStyle={[
+        { borderColor: "#FF0000" },
+        { borderColor: "#FF0000" },
+      ]} // Màu của hai tay kéo
+    />
+    <div className="flex justify-between text-white mt-2">
+      <span>{priceRange[0].toLocaleString()}</span>
+      <span>{priceRange[1].toLocaleString()}</span>
+    </div>
+    <button
+      onClick={handleReset}
+      className="w-full mt-4 bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700"
+    >
+      Reset Price
+    </button>
+  </div>
+</div>
+
 
             {/* Reset Filters */}
             <button

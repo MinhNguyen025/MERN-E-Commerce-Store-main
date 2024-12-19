@@ -115,7 +115,7 @@ const Shop = () => {
       navigate("/login");
       return;
     }
-  
+
     // Kiểm tra xem sản phẩm đã có trong giỏ hàng chưa
     const existingCartItem = cartItems.find(item => item.product === product._id);
   
@@ -142,6 +142,52 @@ const Shop = () => {
       toast.error(error?.data?.message || error.message);
     }
   };  
+
+  const getPageNumbers = () => {
+    const pages = [];
+    const maxPageButtons = 4; // Số nút trang tối đa hiển thị (bao gồm dấu "...")
+    const lastPage = totalPages;
+  
+    if (lastPage <= maxPageButtons) {
+      // Nếu tổng số trang nhỏ hơn hoặc bằng maxPageButtons, hiển thị tất cả
+      for (let i = 1; i <= lastPage; i++) {
+        pages.push(i);
+      }
+    } else {
+      const middleButtons = maxPageButtons - 2; // Các nút trang giữa dấu "..."
+      let start = Math.max(currentPage - Math.floor(middleButtons / 2), 2);
+      let end = start + middleButtons - 1;
+  
+      // Điều chỉnh nếu nút trang cuối cùng không đủ
+      if (end >= lastPage) {
+        end = lastPage - 1;
+        start = end - middleButtons + 1;
+      }
+  
+      // Thêm nút trang đầu tiên
+      pages.push(1);
+  
+      // Thêm dấu "..." nếu cần
+      if (start > 2) {
+        pages.push("...");
+      }
+  
+      // Thêm các nút trang giữa
+      for (let i = start; i <= end; i++) {
+        pages.push(i);
+      }
+  
+      // Thêm dấu "..." nếu cần
+      if (end < lastPage - 1) {
+        pages.push("...");
+      }
+  
+      // Thêm nút trang cuối cùng
+      pages.push(lastPage);
+    }
+  
+    return pages;
+  };
 
   const handlePageChange = (page) => {
     setCurrentPage(page);
@@ -311,19 +357,22 @@ const Shop = () => {
                 ‹
               </button>
 
-              {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-                <button
-                  key={page}
-                  onClick={() => handlePageChange(page)}
-                  className={`px-4 py-2 mx-1 border rounded ${
-                    page === currentPage
-                      ? "bg-red-600 text-white border-red-600"
-                      : "bg-gray-200 text-gray-700 border-gray-300 hover:bg-red-100 hover:border-red-400"
-                  }`}
-                >
-                  {page}
-                </button>
-              ))}
+              {getPageNumbers().map((page, index) => (
+              <button
+                key={index}
+                onClick={() => typeof page === "number" && handlePageChange(page)}
+                disabled={page === "..."}
+                className={`px-4 py-2 mx-1 border rounded ${
+                  page === currentPage
+                    ? "bg-red-600 text-white border-red-600"
+                    : typeof page === "number"
+                    ? "bg-gray-200 text-gray-700 border-gray-300 hover:bg-red-100 hover:border-red-400"
+                    : "bg-transparent text-gray-500 cursor-default"
+                }`}
+              >
+                {page}
+              </button>
+            ))}
 
               <button
                 onClick={() => handlePageChange(currentPage + 1)}

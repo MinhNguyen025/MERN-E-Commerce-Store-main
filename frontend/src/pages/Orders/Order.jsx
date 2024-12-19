@@ -99,10 +99,10 @@ const Order = () => {
             <Messsage>Order is empty</Messsage>
           ) : (
             <div className="overflow-x-auto">
-              <table className="w-[80%]">
+              <table className="w-[100%]">
                 <thead className="border-b-2">
                   <tr>
-                    <th className="p-2">Image</th>
+                    <th className="p-2">Item</th>
                     <th className="p-2">Product</th>
                     <th className="p-2 text-center">Quantity</th>
                     <th className="p-2">Unit Price</th>

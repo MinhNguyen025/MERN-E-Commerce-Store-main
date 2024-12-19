@@ -9,7 +9,7 @@ const Favorites = () => {
   
   return (
     <div className="ml-[10rem]">
-      <h1 className="text-lg font-bold ml-[3rem] mt-[3rem]">
+      <h1 className="text-lg font-bold ml-[3rem] mt-[3rem] mb-[2rem]">
         FAVORITE PRODUCTS
       </h1>
 
@@ -34,7 +34,7 @@ const Favorites = () => {
           </Link>
         </div>
       ) : (
-        <div className="flex flex-wrap">
+        <div className="flex flex-wrap gap-4">
           {favorites.map((product) => (
             <Product key={product._id} product={product} />
           ))}

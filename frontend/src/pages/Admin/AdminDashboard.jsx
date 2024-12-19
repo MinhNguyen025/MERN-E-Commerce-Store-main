@@ -13,13 +13,17 @@ import Loader from "../../components/Loader";
 
 const AdminDashboard = () => {
   const { data: sales, isLoading } = useGetTotalSalesQuery();
-  const { data: customers, isLoading: loading } = useGetUsersQuery();
+  const { data: customers, isLoading: loading } = useGetUsersQuery({
+    page: 1, // Hoặc số trang bạn muốn hiển thị
+    limit: 1000, // Số lượng user tối đa muốn lấy
+    search: "", // Nếu không tìm kiếm, để trống
+  });
   const { data: orders, isLoading: loadingTwo } = useGetTotalOrdersQuery();
   const { data: salesDetail } = useGetTotalSalesByDateQuery();
 
   const [state, setState] = useState({
     options: {
-      chart: { 
+      chart: {
         type: "line",
       },
       tooltip: {
@@ -111,7 +115,7 @@ const AdminDashboard = () => {
 
             <p className="mt-5">Customers</p>
             <h1 className="text-xl font-bold">
-               {isLoading ? <Loader /> : customers?.length}
+            {loading ? <Loader /> : customers?.users ? customers.users.length : 0}
             </h1>
           </div>
           <div className="rounded-lg bg-black p-5 w-[20rem] mt-5">
